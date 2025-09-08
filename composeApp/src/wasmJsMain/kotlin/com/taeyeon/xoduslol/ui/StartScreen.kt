@@ -8,12 +8,15 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.draggable2D
+import androidx.compose.foundation.gestures.rememberDraggable2DState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEmotions
+import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -24,12 +27,14 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import kotlinx.browser.window
 import kotlinx.coroutines.delay
+import kotlin.math.roundToInt
 
 
 @Composable
@@ -92,27 +97,46 @@ fun StartScreen(navController: NavController = rememberNavController()) {
             }
         }
 
+        FilledIconButton(
+            onClick = { /* TODO */ },
+            modifier = Modifier
+                .padding(12.dp)
+                .size(48.dp)
+                .align(Alignment.TopEnd),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Fingerprint,
+                contentDescription = "Hmm.",
+                modifier = Modifier.padding(12.dp),
+            )
+        }
+
         val messageList = listOf(
             "안녕, 내 이름은 버튼버튼이야",
             "날 절-대 클릭하지마",
             "날 클릭하면 나의 다른 사이트로 이동할거야",
             "대신 아래 버튼을 클릭해",
+            "아 그리고 날 움직이게 하려고 하지마",
             "그러면 나는 이만 가볼게",
         )
         var messageIndex by rememberSaveable { mutableStateOf(0) }
         var messageNotifier by rememberSaveable { mutableStateOf(0) }
         LaunchedEffect(messageNotifier) {
-            for (i in 0 ..< 5) {
+            for (i in 0 ..< 6) {
                 messageIndex = i
                 delay(2500)
             }
             messageIndex = -1
         }
 
+        var buttonButtonX by remember { mutableStateOf(0f) }
+        var buttonButtonY by remember { mutableStateOf(0f) }
+
         Row(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(12.dp),
+                .padding(12.dp)
+                .offset { IntOffset(buttonButtonX.roundToInt(), buttonButtonY.roundToInt()) },
             verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -159,6 +183,12 @@ fun StartScreen(navController: NavController = rememberNavController()) {
                     .combinedClickable(
                         onClick = { window.open("https://jtaeyeon05.github.io/", "_blank")?.focus() },
                         onLongClick = { messageNotifier++ }
+                    )
+                    .draggable2D(
+                        state = rememberDraggable2DState { delta ->
+                            buttonButtonX += delta.x
+                            buttonButtonY += delta.y
+                        }
                     ),
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.primary,
