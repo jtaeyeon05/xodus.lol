@@ -1,92 +1,45 @@
 package com.taeyeon.xoduslol
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.taeyeon.xoduslol.ui.AppTheme
-import kotlinx.coroutines.delay
+import com.taeyeon.xoduslol.ui.MainScreen
+import com.taeyeon.xoduslol.ui.StartScreen
 
 
 @Composable
-fun App() {
+fun App(
+    onNavHostReady: suspend (NavController) -> Unit = {}
+) {
+    val navController = rememberNavController()
+    LaunchedEffect(navController) {
+        onNavHostReady(navController)
+    }
+
     AppTheme(darkTheme = false) {
-        Surface {
-            MainScreen()
-        }
-    }
-}
-
-
-@Composable
-fun MainScreen() {
-    var boldIndex by rememberSaveable { mutableStateOf(0) }
-
-    LaunchedEffect(true) {
-        while (true) {
-            boldIndex++
-            if (boldIndex == Int.MAX_VALUE) boldIndex = 0
-            delay(250)
-        }
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .safeContentPadding(),
-    ) {
-        Column(
-            modifier = Modifier.align(Alignment.Center),
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .safeContentPadding()
         ) {
-            Text(
-                text = buildAnnotatedString {
-                    append("Hi, It's ")
-                    withStyle(
-                        style = SpanStyle(fontWeight = FontWeight.Bold)
-                    ) {
-                        append("XODUS.LOL")
-                    }
-                },
-                fontSize = 30.sp,
-            )
-            Spacer(Modifier.height(24.dp))
-            Button(
-                onClick = {  },
-                shape = RectangleShape,
-                contentPadding = PaddingValues(
-                    vertical = 16.dp,
-                    horizontal = 24.dp
-                ),
+            NavHost(
+                navController = navController,
+                startDestination = "start"
             ) {
-                val buttonText = "Let's Go"
-                Text(
-                    text = buildAnnotatedString {
-                        for (i in 0 ..< buttonText.length) {
-                            if (i == boldIndex % buttonText.length) {
-                                withStyle(
-                                    style = SpanStyle(fontWeight = FontWeight.Bold)
-                                ) {
-                                    append(buttonText[i])
-                                }
-                            } else {
-                                append(buttonText[i])
-                            }
-                        }
-                    },
-                    fontSize = 24.sp,
-                )
+                composable(route = "start") {
+                    StartScreen(navController = navController)
+                }
+                composable(route = "main") {
+                    MainScreen(navController = navController)
+                }
             }
         }
     }
