@@ -59,6 +59,7 @@ val AppTypography: Typography
         )
     }
 
+
 /* materialkolor.com midContrast
 val primary = Color(0xFF3A7D44)
 val secondary = Color(0xFFDF6D14)
@@ -139,6 +140,7 @@ val surfaceContainerDark = Color(0xFF141C08)
 val surfaceContainerHighDark = Color(0xFF19220C)
 val surfaceContainerHighestDark = Color(0xFF1F2910)
 
+
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
     onPrimary = onPrimaryLight,
@@ -214,6 +216,7 @@ private val darkScheme = darkColorScheme(
     surfaceContainerHigh = surfaceContainerHighDark,
     surfaceContainerHighest = surfaceContainerHighestDark,
 )
+
 
 @Composable
 fun AppTheme(
