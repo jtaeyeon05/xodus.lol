@@ -1,19 +1,22 @@
 package com.taeyeon.xoduslol.ui
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.EmojiEmotions
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -25,13 +28,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import kotlinx.browser.window
 import kotlinx.coroutines.delay
 
 
 @Composable
 fun StartScreen(navController: NavController = rememberNavController()) {
     var boldIndex by rememberSaveable { mutableStateOf(0) }
-
     LaunchedEffect(true) {
         while (true) {
             boldIndex++
@@ -87,6 +90,99 @@ fun StartScreen(navController: NavController = rememberNavController()) {
                     fontSize = 24.sp,
                 )
             }
+        }
+
+        val messageList = listOf(
+            "안녕, 내 이름은 버튼버튼이야",
+            "날 절-대 클릭하지마",
+            "날 클릭하면 나의 다른 사이트로 이동할거야",
+            "대신 아래 버튼을 클릭해",
+            "그러면 나는 이만 가볼게",
+        )
+        var messageIndex by rememberSaveable { mutableStateOf(0) }
+        var messageNotifier by rememberSaveable { mutableStateOf(0) }
+        LaunchedEffect(messageNotifier) {
+            for (i in 0 ..< 5) {
+                messageIndex = i
+                delay(2500)
+            }
+            messageIndex = -1
+        }
+
+        Row(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(12.dp),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Crossfade(targetState = messageIndex) {}
+            AnimatedContent(
+                targetState = messageIndex,
+                transitionSpec = {
+                    fadeIn(animationSpec = tween(durationMillis = 250, delayMillis = 50))
+                        .togetherWith(fadeOut(animationSpec = tween(durationMillis = 250)))
+                        .using(SizeTransform(clip = false))
+                },
+                contentAlignment = Alignment.TopEnd,
+            ) { targetIndex ->
+                if (targetIndex != -1) {
+                    Column(
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        Text(
+                            text = "버튼버튼",
+                            fontSize = 12.sp,
+                        )
+                        Surface(
+                            shape = RoundedCornerShape(
+                                topStart = 12.dp,
+                                topEnd = 0.dp,
+                                bottomStart = 12.dp,
+                                bottomEnd = 12.dp,
+                            ),
+                            color = MaterialTheme.colorScheme.inverseSurface,
+                            contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                        ) {
+                            Text(
+                                text = messageList[targetIndex],
+                                modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp),
+                                fontSize = 12.sp,
+                            )
+                        }
+                    }
+                }
+            }
+            Surface(
+                modifier = Modifier
+                    .size(48.dp)
+                    .combinedClickable(
+                        onClick = { window.open("https://jtaeyeon05.github.io/", "_blank")?.focus() },
+                        onLongClick = { messageNotifier++ }
+                    ),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.EmojiEmotions,
+                    contentDescription = "Haha",
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .size(24.dp),
+                )
+            }
+        }
+
+        SelectionContainer(
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
+            Text(
+                text = "Contact: email@xodus.lol",
+                modifier = Modifier.padding(12.dp),
+                color = LocalContentColor.current.copy(alpha = 0.5f),
+                fontSize = 18.sp,
+            )
         }
     }
 }
