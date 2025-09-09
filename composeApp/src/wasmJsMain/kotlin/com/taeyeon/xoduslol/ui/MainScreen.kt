@@ -7,8 +7,6 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -19,16 +17,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlin.math.pow
-import kotlin.math.roundToInt
 
 
-enum class DragValue { Start, End }
+enum class DragValue { Down, Normal, Up }
 
 @Composable
 fun MainScreen(navController: NavController = rememberNavController()) {
@@ -36,52 +32,79 @@ fun MainScreen(navController: NavController = rememberNavController()) {
         modifier = Modifier.fillMaxSize(),
     ) {
         if (maxHeight >= maxWidth * 2) {
-            val smallBallSize = maxWidth * 1.2f
-            val bigBallSize = (maxWidth.value.pow(2) + maxHeight.value.pow(2)).pow(0.5f).dp * .8f
-
             val density = LocalDensity.current
             val colorScheme = MaterialTheme.colorScheme
 
-            val initialY = with (density) { (smallBallSize * 0.3f).toPx() }
-            val targetY = with (density) { (bigBallSize * 0.5f - maxHeight * 0.5f).toPx() }
+            val normalBallSize = maxWidth * 1.2f
+            val changeBallSize = (maxWidth.value.pow(2) + maxHeight.value.pow(2)).pow(0.5f).dp * 1.2f - normalBallSize
+
+            val downPosition = with (density) { (maxHeight + normalBallSize * 0.2f).toPx() }
+            val normalPosition = with (density) { (maxHeight - normalBallSize * 0.2f).toPx() }
+            val upPosition = with (density) { (maxHeight * 0.5f).toPx() }
+
+            var isDragEnabled by remember { mutableStateOf(true) }
+            var dragProgress by remember { mutableStateOf(0.0f) }
+            var ballSize by remember { mutableStateOf(normalBallSize) }
+
             val anchoredDraggableState = remember {
                 AnchoredDraggableState(
                     anchors = DraggableAnchors {
-                        DragValue.Start at initialY
-                        DragValue.End at targetY
+                        DragValue.Down at downPosition
+                        DragValue.Normal at normalPosition
+                        DragValue.Up at upPosition
                     },
-                    initialValue = DragValue.Start
+                    initialValue = DragValue.Normal
                 )
             }
 
-            var dragProgress by remember { mutableStateOf(0.0f) }
             LaunchedEffect(anchoredDraggableState) {
-                snapshotFlow { anchoredDraggableState.progress(DragValue.Start, DragValue.End) }
+                snapshotFlow { anchoredDraggableState.progress(DragValue.Normal, DragValue.Up) }
                     .distinctUntilChanged()
                     .collect { newValue ->
                         dragProgress = newValue
+                        ballSize = normalBallSize + changeBallSize * newValue
+                    }
+            }
+
+            LaunchedEffect(anchoredDraggableState) {
+                snapshotFlow { anchoredDraggableState.settledValue }
+                    .distinctUntilChanged()
+                    .collect { newValue ->
+                        if (newValue == DragValue.Up) {
+                            isDragEnabled = false
+                        } else if (newValue == DragValue.Down) {
+                            navController.popBackStack()
+                        }
                     }
             }
 
             Canvas(
                 modifier = Modifier
-                    .requiredSize(smallBallSize + (bigBallSize - smallBallSize) * dragProgress)
-                    .align(Alignment.BottomCenter)
-                    .offset {
-                        IntOffset(
-                            x = 0,
-                            y = anchoredDraggableState.requireOffset().roundToInt()
-                        )
-                    }
-                    .anchoredDraggable(anchoredDraggableState, Orientation.Vertical)
+                    .fillMaxSize()
+                    .anchoredDraggable(
+                        state = anchoredDraggableState,
+                        orientation = Orientation.Vertical,
+                        enabled = isDragEnabled,
+                    )
             ) {
-                rotate(180 * dragProgress) {
+                rotate(
+                    degrees = 180 * dragProgress,
+                    pivot = Offset(
+                        x = center.x,
+                        y = anchoredDraggableState.requireOffset()
+                    ),
+                ) {
                     drawCircle(
                         brush = Brush.linearGradient(
                             0.0f to colorScheme.primaryContainer,
                             1.0f to colorScheme.surface.copy(alpha = 1 - dragProgress).compositeOver(colorScheme.primaryContainer),
                             start = Offset(x = 0f, y = size.height),
                             end = Offset(x = size.width, y = 0f)
+                        ),
+                        radius = ballSize.toPx() * 0.5f,
+                        center = Offset(
+                            x = center.x,
+                            y = anchoredDraggableState.requireOffset()
                         ),
                     )
                 }
