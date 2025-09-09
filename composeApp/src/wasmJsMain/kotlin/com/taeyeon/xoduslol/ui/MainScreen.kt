@@ -16,12 +16,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlin.math.pow
 import kotlin.math.roundToInt
 
 
@@ -33,12 +36,14 @@ fun MainScreen(navController: NavController = rememberNavController()) {
         modifier = Modifier.fillMaxSize(),
     ) {
         if (maxHeight >= maxWidth * 2) {
-            val ballSize = maxWidth * 1.2f
+            val smallBallSize = maxWidth * 1.2f
+            val bigBallSize = (maxWidth.value.pow(2) + maxHeight.value.pow(2)).pow(0.5f).dp * .8f
+
             val density = LocalDensity.current
             val colorScheme = MaterialTheme.colorScheme
 
-            val initialY = with (density) { (ballSize * 0.3f).toPx() }
-            val targetY = with (density) { (ballSize * 0.5f - maxHeight * 0.5f).toPx() }
+            val initialY = with (density) { (smallBallSize * 0.3f).toPx() }
+            val targetY = with (density) { (bigBallSize * 0.5f - maxHeight * 0.5f).toPx() }
             val anchoredDraggableState = remember {
                 AnchoredDraggableState(
                     anchors = DraggableAnchors {
@@ -60,7 +65,7 @@ fun MainScreen(navController: NavController = rememberNavController()) {
 
             Canvas(
                 modifier = Modifier
-                    .requiredSize(ballSize)
+                    .requiredSize(smallBallSize + (bigBallSize - smallBallSize) * dragProgress)
                     .align(Alignment.BottomCenter)
                     .offset {
                         IntOffset(
@@ -74,7 +79,7 @@ fun MainScreen(navController: NavController = rememberNavController()) {
                     drawCircle(
                         brush = Brush.linearGradient(
                             0.0f to colorScheme.primaryContainer,
-                            1.0f to colorScheme.surface,
+                            1.0f to colorScheme.surface.copy(alpha = 1 - dragProgress).compositeOver(colorScheme.primaryContainer),
                             start = Offset(x = 0f, y = size.height),
                             end = Offset(x = size.width, y = 0f)
                         ),
