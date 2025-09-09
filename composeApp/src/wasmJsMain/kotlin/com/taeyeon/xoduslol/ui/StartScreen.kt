@@ -116,7 +116,7 @@ fun StartScreen(navController: NavController = rememberNavController()) {
             "날 절-대 클릭하지마",
             "날 클릭하면 나의 다른 사이트로 이동할거야",
             "대신 아래 버튼을 클릭해",
-            "아 그리고 날 움직이게 하려고 하지마",
+            "아 그리고 날 옮기지 마!",
             "그러면 나는 이만 가볼게",
         )
         var messageIndex by rememberSaveable { mutableStateOf(0) }
@@ -182,7 +182,11 @@ fun StartScreen(navController: NavController = rememberNavController()) {
                     .size(48.dp)
                     .combinedClickable(
                         onClick = { window.open("https://jtaeyeon05.github.io/", "_blank")?.focus() },
-                        onLongClick = { messageNotifier++ }
+                        onLongClick = {
+                            messageNotifier++
+                            buttonButtonX = 0f
+                            buttonButtonY = 0f
+                        }
                     )
                     .draggable2D(
                         state = rememberDraggable2DState { delta ->
