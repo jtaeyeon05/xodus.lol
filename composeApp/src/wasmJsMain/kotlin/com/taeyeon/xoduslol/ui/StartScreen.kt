@@ -121,7 +121,7 @@ fun StartScreen(navController: NavController = rememberNavController()) {
         ) {
             Icon(
                 imageVector = Icons.Filled.Fingerprint,
-                contentDescription = "Hmm.",
+                contentDescription = "헉",
                 modifier = Modifier.padding(12.dp),
             )
         }
@@ -134,14 +134,14 @@ fun StartScreen(navController: NavController = rememberNavController()) {
             "아 그리고 날 옮기지 마!",
             "그러면 나는 이만 가볼게",
         )
-        var messageIndex by rememberSaveable { mutableStateOf(0) }
+        var message by rememberSaveable { mutableStateOf<String?>(null) }
         var messageNotifier by rememberSaveable { mutableStateOf(0) }
         LaunchedEffect(messageNotifier) {
             for (i in 0 ..< 6) {
-                messageIndex = i
+                message = messageList[i]
                 delay(2500)
             }
-            messageIndex = -1
+            message = null
         }
 
         var buttonButtonX by remember { mutableStateOf(0f) }
@@ -155,22 +155,22 @@ fun StartScreen(navController: NavController = rememberNavController()) {
             verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Crossfade(targetState = messageIndex) {}
             AnimatedContent(
-                targetState = messageIndex,
+                targetState = message,
                 transitionSpec = {
                     fadeIn(animationSpec = tween(durationMillis = 250, delayMillis = 50))
                         .togetherWith(fadeOut(animationSpec = tween(durationMillis = 250)))
                         .using(SizeTransform(clip = false))
                 },
                 contentAlignment = Alignment.TopEnd,
-            ) { targetIndex ->
-                if (targetIndex != -1) {
+            ) { targetMessage ->
+                if (targetMessage != null) {
                     Column(
                         horizontalAlignment = Alignment.End
                     ) {
                         Text(
                             text = "버튼버튼",
+                            color = LocalContentColor.current.copy(alpha = 0.8f),
                             fontSize = 12.sp,
                         )
                         Surface(
@@ -184,7 +184,7 @@ fun StartScreen(navController: NavController = rememberNavController()) {
                             contentColor = MaterialTheme.colorScheme.inverseOnSurface,
                         ) {
                             Text(
-                                text = messageList[targetIndex],
+                                text = targetMessage,
                                 modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp),
                                 fontSize = 12.sp,
                             )
@@ -216,7 +216,7 @@ fun StartScreen(navController: NavController = rememberNavController()) {
             ) {
                 Icon(
                     imageVector = Icons.Filled.EmojiEmotions,
-                    contentDescription = "Haha",
+                    contentDescription = "버튼버튼",
                     modifier = Modifier
                         .padding(12.dp)
                         .size(24.dp),

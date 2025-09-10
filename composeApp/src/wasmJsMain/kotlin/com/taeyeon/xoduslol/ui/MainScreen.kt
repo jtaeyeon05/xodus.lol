@@ -5,10 +5,18 @@ import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.EmojiEmotions
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -18,11 +26,14 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.jetbrains.compose.resources.imageResource
 import xoduslol.composeapp.generated.resources.Res
@@ -52,6 +63,8 @@ fun MainScreen(navController: NavController = rememberNavController()) {
         var isDragEnabled by remember { mutableStateOf(true) }
         var ballSize by remember { mutableStateOf(normalBallSize) }
 
+        val squaredUpImage = imageResource(Res.drawable.SquaredUp)
+        val squaredCircleImage = imageResource(Res.drawable.SquaredCircle)
         val anchoredDraggableState = remember {
             AnchoredDraggableState(
                 anchors = DraggableAnchors {
@@ -84,8 +97,62 @@ fun MainScreen(navController: NavController = rememberNavController()) {
                 }
         }
 
-        val squaredUpImage = imageResource(Res.drawable.SquaredUp)
-        val squaredCircleImage = imageResource(Res.drawable.SquaredCircle)
+        Column(
+            modifier = Modifier
+                .padding(24.dp)
+                .fillMaxWidth()
+                .height(maxHeight - normalBallSize * 0.92f - 48.dp),
+            verticalArrangement = Arrangement.spacedBy(
+                space = 12.dp,
+                alignment = Alignment.CenterVertically
+            ),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            val messageList = listOf(
+                "음, 다른 사이트로 이동하려고 하는구나",
+                "그래, 초록 원을 위로 올리면\n" +
+                        "https://jtaeyeon05.github.io/\n" +
+                        "로 이동할거야",
+                "다시 원래 화면으로 돌아가고 싶으면\n" +
+                        "초록 원을 아래로 내려",
+                "그러면 나는 너의 선택을 기다릴게",
+                "•••",
+            )
+            var message by rememberSaveable { mutableStateOf("") }
+            LaunchedEffect(true) {
+                for (i in 0 ..< 5) {
+                    message = ""
+                    for (j in 0 ..< messageList[i].length) {
+                        message += messageList[i][j]
+                        delay(50)
+                    }
+                    delay(2500)
+                }
+            }
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.EmojiEmotions,
+                    contentDescription = "버튼버튼",
+                    modifier = Modifier.size(24.dp),
+                    tint = LocalContentColor.current.copy(alpha = 0.8f),
+                )
+                Text(
+                    text = "버튼버튼",
+                    color = LocalContentColor.current.copy(alpha = 0.8f),
+                    fontSize = 18.sp,
+                    lineHeight = 18.sp,
+                )
+            }
+            Text(
+                text = message,
+                fontSize = 18.sp,
+                textAlign = TextAlign.Center,
+            )
+        }
 
         Canvas(
             modifier = Modifier
@@ -103,11 +170,11 @@ fun MainScreen(navController: NavController = rememberNavController()) {
                     image = squaredUpImage,
                     dstOffset = IntOffset(
                         x = (maxWidth.toPx() * 0.5f - normalBallSize.toPx() * 5f / 34f).roundToInt(),
-                        y = (maxHeight.toPx() - normalBallSize.toPx()).roundToInt()
+                        y = (maxHeight.toPx() - normalBallSize.toPx() * 0.92f).roundToInt()
                     ),
                     dstSize = IntSize(
                         width = (normalBallSize.toPx() * 5f / 17f).roundToInt(),
-                        height = (normalBallSize.toPx() * 5f / 17f).roundToInt()
+                        height = (normalBallSize.toPx() * 3f / 17f).roundToInt()
                     ),
                     filterQuality = FilterQuality.None
                 )
