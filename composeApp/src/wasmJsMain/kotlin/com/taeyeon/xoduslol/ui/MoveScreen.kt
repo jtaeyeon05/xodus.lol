@@ -24,6 +24,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import kotlinx.browser.window
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.jetbrains.compose.resources.imageResource
@@ -46,7 +48,7 @@ import kotlin.math.roundToInt
 enum class DragValue { Down, Normal, Up }
 
 @Composable
-fun MainScreen(navController: NavController = rememberNavController()) {
+fun MoveScreen(navController: NavController = rememberNavController()) {
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -76,6 +78,8 @@ fun MainScreen(navController: NavController = rememberNavController()) {
             )
         }
 
+        var ballDownProgress by remember { mutableStateOf(0f) }
+        var ballUpProgress by remember { mutableStateOf(0f) }
         LaunchedEffect(anchoredDraggableState) {
             snapshotFlow {
                 Triple(
@@ -87,10 +91,12 @@ fun MainScreen(navController: NavController = rememberNavController()) {
                 .distinctUntilChanged()
                 .collect { (downProgress, upProgress, settleValue) ->
                     ballSize = normalBallSize * (1f - downProgress * 0.5f) + changeBallSize * upProgress
-                    println("$downProgress, $upProgress")
+
+                    ballDownProgress = downProgress
+                    ballUpProgress = upProgress
 
                     if (settleValue == DragValue.Up) {
-                        isDragEnabled = false
+                        window.open("https://jtaeyeon05.github.io/", "_self")
                     } else if (settleValue == DragValue.Down) {
                         navController.popBackStack()
                     }
@@ -109,14 +115,14 @@ fun MainScreen(navController: NavController = rememberNavController()) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             val messageList = listOf(
-                "음, 다른 사이트로 이동하려고 하는구나",
+                "다른 사이트로 이동하려고 하는구나",
                 "그래, 초록 원을 위로 올리면\n" +
                         "https://jtaeyeon05.github.io/\n" +
                         "로 이동할거야",
                 "다시 원래 화면으로 돌아가고 싶으면\n" +
-                        "초록 원을 아래로 내려",
+                        "초록 원을 아래로 내려줘",
                 "그러면 나는 너의 선택을 기다릴게",
-                "•••",
+                "• • •",
             )
             var message by rememberSaveable { mutableStateOf("") }
             LaunchedEffect(true) {
@@ -135,9 +141,9 @@ fun MainScreen(navController: NavController = rememberNavController()) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
+                    modifier = Modifier.size(24.dp),
                     imageVector = Icons.Filled.EmojiEmotions,
                     contentDescription = "버튼버튼",
-                    modifier = Modifier.size(24.dp),
                     tint = LocalContentColor.current.copy(alpha = 0.8f),
                 )
                 Text(
@@ -180,7 +186,8 @@ fun MainScreen(navController: NavController = rememberNavController()) {
                 )
 
                 drawRect(
-                    color = colorScheme.onSurface.copy(alpha = 0.5f),
+                    color = colorScheme.onSurface
+                        .copy(alpha = 0.5f * (1f - ballDownProgress)),
                     topLeft = Offset(
                         x = maxWidth.toPx() * 0.5f - normalBallSize.toPx() * 5f / 34f,
                         y = maxHeight.toPx() - normalBallSize.toPx()
@@ -210,7 +217,9 @@ fun MainScreen(navController: NavController = rememberNavController()) {
                 )
 
                 drawRect(
-                    color = colorScheme.primaryContainer,
+                    color = colorScheme.primaryContainer
+                        .copy(alpha = 1f - ballUpProgress)
+                        .compositeOver(colorScheme.surface),
                     topLeft = Offset(
                         x = maxWidth.toPx() * 0.5f - ballSize.toPx() * 0.5f,
                         y = anchoredDraggableState.requireOffset() - ballSize.toPx() * 0.5f

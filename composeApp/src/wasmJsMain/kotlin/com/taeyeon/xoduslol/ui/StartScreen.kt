@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import kotlinx.browser.window
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
@@ -113,16 +112,16 @@ fun StartScreen(navController: NavController = rememberNavController()) {
         }
 
         FilledIconButton(
-            onClick = { /* TODO */ },
             modifier = Modifier
                 .padding(12.dp)
                 .requiredSize(48.dp)
                 .align(Alignment.TopEnd),
+            onClick = { /* TODO */ },
         ) {
             Icon(
+                modifier = Modifier.padding(12.dp),
                 imageVector = Icons.Filled.Fingerprint,
                 contentDescription = "헉",
-                modifier = Modifier.padding(12.dp),
             )
         }
 
@@ -184,8 +183,8 @@ fun StartScreen(navController: NavController = rememberNavController()) {
                             contentColor = MaterialTheme.colorScheme.inverseOnSurface,
                         ) {
                             Text(
-                                text = targetMessage,
                                 modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp),
+                                text = targetMessage,
                                 fontSize = 12.sp,
                             )
                         }
@@ -197,7 +196,7 @@ fun StartScreen(navController: NavController = rememberNavController()) {
                     .requiredSize(48.dp)
                     .clip(CircleShape)
                     .combinedClickable(
-                        onClick = { window.open("https://jtaeyeon05.github.io/", "_blank")?.focus() },
+                        onClick = { navController.navigate(route = "move") },
                         onLongClick = {
                             messageNotifier++
                             buttonButtonX = 0f
@@ -215,11 +214,11 @@ fun StartScreen(navController: NavController = rememberNavController()) {
                 contentColor = MaterialTheme.colorScheme.onPrimary,
             ) {
                 Icon(
-                    imageVector = Icons.Filled.EmojiEmotions,
-                    contentDescription = "버튼버튼",
                     modifier = Modifier
                         .padding(12.dp)
                         .size(24.dp),
+                    imageVector = Icons.Filled.EmojiEmotions,
+                    contentDescription = "버튼버튼",
                 )
             }
         }

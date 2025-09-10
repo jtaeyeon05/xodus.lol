@@ -11,7 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.taeyeon.xoduslol.ui.AppTheme
-import com.taeyeon.xoduslol.ui.MainScreen
+import com.taeyeon.xoduslol.ui.MoveScreen
 import com.taeyeon.xoduslol.ui.StartScreen
 
 
@@ -37,8 +37,8 @@ fun App(
                 composable(route = "start") {
                     StartScreen(navController = navController)
                 }
-                composable(route = "main") {
-                    MainScreen(navController = navController)
+                composable(route = "move") {
+                    MoveScreen(navController = navController)
                 }
             }
         }
