@@ -45,8 +45,6 @@ import kotlin.math.hypot
 import kotlin.math.roundToInt
 
 
-enum class DragValue { Down, Normal, Up }
-
 @Composable
 fun MoveScreen(navController: NavController = rememberNavController()) {
     BoxWithConstraints(
@@ -70,11 +68,11 @@ fun MoveScreen(navController: NavController = rememberNavController()) {
         val anchoredDraggableState = remember {
             AnchoredDraggableState(
                 anchors = DraggableAnchors {
-                    DragValue.Down at downPosition
-                    DragValue.Normal at normalPosition
-                    DragValue.Up at upPosition
+                    "down" at downPosition
+                    "normal" at normalPosition
+                    "up" at upPosition
                 },
-                initialValue = DragValue.Normal
+                initialValue = "normal"
             )
         }
 
@@ -83,8 +81,8 @@ fun MoveScreen(navController: NavController = rememberNavController()) {
         LaunchedEffect(anchoredDraggableState) {
             snapshotFlow {
                 Triple(
-                    anchoredDraggableState.progress(DragValue.Normal, DragValue.Down),
-                    anchoredDraggableState.progress(DragValue.Normal, DragValue.Up),
+                    anchoredDraggableState.progress("normal", "down"),
+                    anchoredDraggableState.progress("normal", "up"),
                     anchoredDraggableState.settledValue
                 )
             }
@@ -95,9 +93,9 @@ fun MoveScreen(navController: NavController = rememberNavController()) {
                     ballDownProgress = downProgress
                     ballUpProgress = upProgress
 
-                    if (settleValue == DragValue.Up) {
+                    if (settleValue == "up") {
                         window.open("https://jtaeyeon05.github.io/", "_self")
-                    } else if (settleValue == DragValue.Down) {
+                    } else if (settleValue == "down") {
                         navController.popBackStack()
                     }
                 }
@@ -109,7 +107,7 @@ fun MoveScreen(navController: NavController = rememberNavController()) {
                 .fillMaxWidth()
                 .height(maxHeight - normalBallSize * 0.92f - 48.dp),
             verticalArrangement = Arrangement.spacedBy(
-                space = 12.dp,
+                space = 18.dp,
                 alignment = Alignment.CenterVertically
             ),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -141,7 +139,7 @@ fun MoveScreen(navController: NavController = rememberNavController()) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.size(32.dp),
                     imageVector = Icons.Filled.EmojiEmotions,
                     contentDescription = "버튼버튼",
                     tint = LocalContentColor.current.copy(alpha = 0.8f),
@@ -149,8 +147,8 @@ fun MoveScreen(navController: NavController = rememberNavController()) {
                 Text(
                     text = "버튼버튼",
                     color = LocalContentColor.current.copy(alpha = 0.8f),
-                    fontSize = 18.sp,
-                    lineHeight = 18.sp,
+                    fontSize = 24.sp,
+                    lineHeight = 24.sp,
                 )
             }
             Text(
@@ -189,12 +187,12 @@ fun MoveScreen(navController: NavController = rememberNavController()) {
                     color = colorScheme.onSurface
                         .copy(alpha = 0.5f * (1f - ballDownProgress)),
                     topLeft = Offset(
-                        x = maxWidth.toPx() * 0.5f - normalBallSize.toPx() * 5f / 34f,
-                        y = maxHeight.toPx() - normalBallSize.toPx()
+                        x = maxWidth.toPx() * 0.5f - normalBallSize.toPx() * 5f / 34f - 10f,
+                        y = maxHeight.toPx() - normalBallSize.toPx() - 10f
                     ),
                     size = Size(
-                        width = normalBallSize.toPx() * 5f / 17f,
-                        height = normalBallSize.toPx() * 5f / 17f
+                        width = normalBallSize.toPx() * 5f / 17f + 20f,
+                        height = normalBallSize.toPx() * 5f / 17f + 20f
                     ),
                     blendMode = BlendMode.SrcIn
                 )
@@ -221,12 +219,12 @@ fun MoveScreen(navController: NavController = rememberNavController()) {
                         .copy(alpha = 1f - ballUpProgress)
                         .compositeOver(colorScheme.surface),
                     topLeft = Offset(
-                        x = maxWidth.toPx() * 0.5f - ballSize.toPx() * 0.5f,
-                        y = anchoredDraggableState.requireOffset() - ballSize.toPx() * 0.5f
+                        x = maxWidth.toPx() * 0.5f - ballSize.toPx() * 0.5f - 10f,
+                        y = anchoredDraggableState.requireOffset() - ballSize.toPx() * 0.5f - 10f
                     ),
                     size = Size(
-                        width = ballSize.toPx(),
-                        height = ballSize.toPx()
+                        width = ballSize.toPx() + 20f,
+                        height = ballSize.toPx() + 20f
                     ),
                     blendMode = BlendMode.SrcIn
                 )
