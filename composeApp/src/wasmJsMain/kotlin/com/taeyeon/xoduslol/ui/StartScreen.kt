@@ -1,12 +1,7 @@
 package com.taeyeon.xoduslol.ui
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.Crossfade
-import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.draggable2D
 import androidx.compose.foundation.gestures.rememberDraggable2DState
@@ -22,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -97,11 +93,30 @@ fun StartScreen(navController: NavController = rememberNavController()) {
             }
         }
 
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(12.dp)
+        ) {
+            Text(
+                text = "Contact: ",
+                color = LocalContentColor.current.copy(alpha = 0.5f),
+                fontSize = 18.sp,
+            )
+            SelectionContainer {
+                Text(
+                    text = "email@xodus.lol",
+                    color = LocalContentColor.current.copy(alpha = 0.5f),
+                    fontSize = 18.sp,
+                )
+            }
+        }
+
         FilledIconButton(
             onClick = { /* TODO */ },
             modifier = Modifier
                 .padding(12.dp)
-                .size(48.dp)
+                .requiredSize(48.dp)
                 .align(Alignment.TopEnd),
         ) {
             Icon(
@@ -179,7 +194,8 @@ fun StartScreen(navController: NavController = rememberNavController()) {
             }
             Surface(
                 modifier = Modifier
-                    .size(48.dp)
+                    .requiredSize(48.dp)
+                    .clip(CircleShape)
                     .combinedClickable(
                         onClick = { window.open("https://jtaeyeon05.github.io/", "_blank")?.focus() },
                         onLongClick = {
@@ -206,17 +222,6 @@ fun StartScreen(navController: NavController = rememberNavController()) {
                         .size(24.dp),
                 )
             }
-        }
-
-        SelectionContainer(
-            modifier = Modifier.align(Alignment.BottomCenter)
-        ) {
-            Text(
-                text = "Contact: email@xodus.lol",
-                modifier = Modifier.padding(12.dp),
-                color = LocalContentColor.current.copy(alpha = 0.5f),
-                fontSize = 18.sp,
-            )
         }
     }
 }
