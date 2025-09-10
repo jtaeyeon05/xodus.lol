@@ -40,6 +40,9 @@ fun App(
                 composable(route = "move") {
                     MoveScreen(navController = navController)
                 }
+                composable(route = "main") {
+                    MainScreen(navController = navController)
+                }
             }
         }
     }
