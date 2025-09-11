@@ -60,12 +60,11 @@ fun MoveScreen(navController: NavController = rememberNavController()) {
         val normalPosition = with (density) { (maxHeight - normalBallSize * 0.2f).toPx() }
         val upPosition = with (density) { (maxHeight * 0.5f).toPx() }
 
-        var isDragEnabled by remember { mutableStateOf(true) }
-        var ballSize by remember { mutableStateOf(normalBallSize) }
+        var ballSize by remember(maxWidth, maxHeight) { mutableStateOf(normalBallSize) }
 
         val squaredUpImage = imageResource(Res.drawable.SquaredUp)
         val squaredCircleImage = imageResource(Res.drawable.SquaredCircle)
-        val anchoredDraggableState = remember {
+        val anchoredDraggableState = remember(maxWidth, maxHeight) {
             AnchoredDraggableState(
                 anchors = DraggableAnchors {
                     "down" at downPosition
@@ -76,8 +75,8 @@ fun MoveScreen(navController: NavController = rememberNavController()) {
             )
         }
 
-        var ballDownProgress by remember { mutableStateOf(0f) }
-        var ballUpProgress by remember { mutableStateOf(0f) }
+        var ballDownProgress by remember(maxWidth, maxHeight) { mutableStateOf(0f) }
+        var ballUpProgress by remember(maxWidth, maxHeight) { mutableStateOf(0f) }
         LaunchedEffect(anchoredDraggableState) {
             snapshotFlow {
                 Triple(
@@ -164,7 +163,6 @@ fun MoveScreen(navController: NavController = rememberNavController()) {
                 .anchoredDraggable(
                     state = anchoredDraggableState,
                     orientation = Orientation.Vertical,
-                    enabled = isDragEnabled,
                 )
         ) {
             drawIntoCanvas { canvas ->
