@@ -1,25 +1,132 @@
 package com.taeyeon.xoduslol
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.delay
+import kotlin.math.roundToInt
+import kotlin.random.Random
 
 
 @Composable
 fun MainScreen(navController: NavController = rememberNavController()) {
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Text(
-            modifier = Modifier.align(Alignment.Center),
-            text = "MainScreen",
-            fontSize = 32.sp
+    BoxWithConstraints {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(3f)
+                    .background(
+                        MaterialTheme.colorScheme.tertiary
+                            .copy(alpha = 0.3f)
+                            .compositeOver(Color.White)
+                    )
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(2f)
+                    .background(MaterialTheme.colorScheme.primary)
+            ) {
+                val fullText1 = "Actually... I haven't finished developing this page yet."
+                val fullText2 = "Therefore, I have nothing to show you. Sorry."
+                var textContent by rememberSaveable { mutableStateOf("") }
+                LaunchedEffect(true) {
+                    for (i in fullText1.indices) {
+                        textContent += fullText1[i]
+                        delay(100)
+                    }
+                    textContent += "\n"
+                    delay(500)
+                    for (i in fullText2.indices) {
+                        textContent += fullText2[i]
+                        delay(100)
+                    }
+                }
+
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(24.dp),
+                    text = textContent,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    fontSize = 32.sp,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 40.sp,
+                )
+            }
+        }
+
+        repeat(5) {
+            var cloudNotifier by rememberSaveable { mutableStateOf(0) }
+            var cloudW by remember { mutableStateOf(0.dp) }
+            var cloudH by remember { mutableStateOf(0.dp) }
+            var cloudX by remember { mutableStateOf(0.dp) }
+            var cloudY by remember { mutableStateOf(0.dp) }
+
+            LaunchedEffect(cloudNotifier, maxWidth, maxHeight) {
+                cloudW = listOf(100.dp, 150.dp, 200.dp)[Random.nextInt(3)]
+                cloudH = listOf(50.dp, 75.dp, 100.dp)[Random.nextInt(3)]
+                cloudX = if (cloudNotifier == 0) (maxWidth + cloudW) * Random.nextFloat() - cloudW else maxWidth + 300.dp * Random.nextFloat()
+                cloudY = ((((maxHeight.value * 0.6f - 100 - cloudH.value) * Random.nextFloat() + 50) / 25).roundToInt() * 25).dp
+
+                while (cloudX >= -cloudW) {
+                    cloudX -= 50.dp
+                    delay(200)
+                }
+                cloudNotifier++
+            }
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .offset(x = cloudX, y = cloudY)
+                    .width(cloudW)
+                    .height(cloudH)
+                    .background(Color.White)
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(100.dp)
+                .size(100.dp)
+                .background(MaterialTheme.colorScheme.secondaryContainer)
+                .clickable(
+                    onClick = {
+                        navController.popBackStack()
+                    }
+                )
         )
     }
 }
