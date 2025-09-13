@@ -5,6 +5,7 @@ import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEmotions
@@ -64,8 +65,6 @@ fun MoveScreen(
         val normalPosition = with (density) { (maxHeight - normalBallSize * 0.2f).toPx() }
         val upPosition = with (density) { (maxHeight * 0.5f).toPx() }
 
-        var ballSize by remember(maxWidth, maxHeight) { mutableStateOf(normalBallSize) }
-
         val squaredUpImage = imageResource(Res.drawable.SquaredUp)
         val squaredCircleImage = imageResource(Res.drawable.SquaredCircle)
         val anchoredDraggableState = remember(maxWidth, maxHeight) {
@@ -79,6 +78,7 @@ fun MoveScreen(
             )
         }
 
+        var ballSize by remember(maxWidth, maxHeight) { mutableStateOf(normalBallSize) }
         var ballDownProgress by remember(maxWidth, maxHeight) { mutableStateOf(0f) }
         var ballUpProgress by remember(maxWidth, maxHeight) { mutableStateOf(0f) }
         LaunchedEffect(anchoredDraggableState) {
@@ -97,7 +97,12 @@ fun MoveScreen(
                     ballUpProgress = upProgress
 
                     if (settleValue == "up") {
-                        window.open("https://jtaeyeon05.github.io/", "_self")
+                        if (newTab) {
+                            window.open(url ?: "https://github.com/jtaeyeon05", "_blank")?.focus()
+                            anchoredDraggableState.animateTo("normal")
+                        } else {
+                            window.open(url ?: "https://github.com/jtaeyeon05", "_self")
+                        }
                     } else if (settleValue == "down") {
                         navController.popBackStack()
                     }
@@ -115,7 +120,7 @@ fun MoveScreen(
             ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            val messageList = listOf(
+            val messageList = if (url != null) listOf(
                 "다른 사이트로 이동하려고 하는구나",
                 "그래, 초록 원을 위로 올리면\n" +
                         "$url\n" +
@@ -124,10 +129,20 @@ fun MoveScreen(
                         "초록 원을 아래로 내려줘",
                 "그러면 나는 너의 선택을 기다릴게",
                 "• • •",
+            ) else listOf(
+                "다른 사이트로 이동하려고 하는구나",
+                "그런데 나에게 이동할 사이트 주소가 없는데?",
+                "흠 • • •",
+                "초록 원을 위로 올리면\n" +
+                        "나의 깃허브로 이동시켜줄게",
+                "다시 원래 화면으로 돌아가고 싶으면\n" +
+                        "초록 원을 아래로 내려줘",
+                "그러면 나는 너의 선택을 기다릴게",
+                "• • •",
             )
-            var message by rememberSaveable { mutableStateOf("") }
-            LaunchedEffect(true) {
-                for (i in 0 ..< 5) {
+            var message by rememberSaveable(url) { mutableStateOf("") }
+            LaunchedEffect(url) {
+                for (i in messageList.indices) {
                     message = ""
                     for (j in 0 ..< messageList[i].length) {
                         message += messageList[i][j]
