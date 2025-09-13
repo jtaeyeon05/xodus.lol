@@ -31,7 +31,7 @@ fun App(
         ) {
             NavHost(
                 navController = navController,
-                startDestination = Screen.Start
+                startDestination = Screen.Start()
             ) {
                 appNavGraph(navController = navController)
             }

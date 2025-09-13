@@ -10,18 +10,19 @@ import com.taeyeon.xoduslol.ui.StartScreen
 
 
 fun NavGraphBuilder.appNavGraph(navController: NavController) {
-    composable<Screen.Start> {
-        StartScreen(navController = navController)
+    composable<Screen.Start> { backStackEntry ->
+        StartScreen(
+            navController = navController,
+            screen = backStackEntry.toRoute<Screen.Start>()
+        )
     }
     composable<Screen.Main> {
         MainScreen(navController = navController)
     }
     composable<Screen.Move> { backStackEntry ->
-        val move = backStackEntry.toRoute<Screen.Move>()
         MoveScreen(
             navController = navController,
-            url = move.target,
-            newTab = move.newTab,
+            screen = backStackEntry.toRoute<Screen.Move>()
         )
     }
 }

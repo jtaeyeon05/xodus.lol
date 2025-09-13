@@ -4,14 +4,16 @@ import kotlinx.serialization.Serializable
 
 object Screen {
     @Serializable
-    data object Start
+    data class Start(
+        val partyMode: Boolean = false,
+    )
 
     @Serializable
     data object Main
 
     @Serializable
     data class Move(
-        val target: String?,
+        val target: String? = null,
         val newTab: Boolean = false,
     )
 }

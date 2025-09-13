@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.taeyeon.xoduslol.navigation.Screen
+import com.taeyeon.xoduslol.util.replaceHash
 import io.github.vinceglb.confettikit.compose.ConfettiKit
 import io.github.vinceglb.confettikit.core.Angle
 import io.github.vinceglb.confettikit.core.Party
@@ -53,11 +54,14 @@ import kotlin.time.Duration.Companion.seconds
 
 
 @Composable
-fun StartScreen(navController: NavController = rememberNavController()) {
+fun StartScreen(
+    navController: NavController = rememberNavController(),
+    screen: Screen.Start = Screen.Start()
+) {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        var rainbowMode by rememberSaveable { mutableStateOf(false) }
+        var partyMode by rememberSaveable { mutableStateOf(screen.partyMode) }
 
         Column(
             modifier = Modifier.align(Alignment.Center),
@@ -77,7 +81,7 @@ fun StartScreen(navController: NavController = rememberNavController()) {
             Text(
                 modifier = Modifier.onSizeChanged { titleSize = it },
                 text = buildAnnotatedString {
-                    if (rainbowMode) {
+                    if (partyMode) {
                         pushStyle(
                             SpanStyle(
                                 brush = Brush.linearGradient(
@@ -168,11 +172,14 @@ fun StartScreen(navController: NavController = rememberNavController()) {
                 .padding(12.dp)
                 .requiredSize(48.dp)
                 .align(Alignment.TopEnd),
-            onClick = { rainbowMode = !rainbowMode },
+            onClick = {
+                partyMode = !partyMode
+                replaceHash(if (partyMode) "#start?partyMode" else "#start")
+            },
         ) {
             Icon(
                 modifier = Modifier.padding(12.dp),
-                imageVector = if (rainbowMode) Icons.Filled.Lightbulb else Icons.TwoTone.Lightbulb,
+                imageVector = if (partyMode) Icons.Filled.Lightbulb else Icons.TwoTone.Lightbulb,
                 contentDescription = "파티!",
             )
         }
@@ -275,7 +282,7 @@ fun StartScreen(navController: NavController = rememberNavController()) {
             }
         }
 
-        if (rainbowMode) {
+        if (partyMode) {
             ConfettiKit(
                 modifier = Modifier.fillMaxSize(),
                 parties = listOf(

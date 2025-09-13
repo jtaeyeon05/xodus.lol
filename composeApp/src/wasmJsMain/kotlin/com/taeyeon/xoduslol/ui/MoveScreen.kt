@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.taeyeon.xoduslol.navigation.Screen
 import kotlinx.browser.window
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -56,14 +57,13 @@ private const val DRAW_MARGIN_PX = 10f
 @Composable
 fun MoveScreen(
     navController: NavController = rememberNavController(),
-    url: String? = null,
-    newTab: Boolean = false,
+    screen: Screen.Move = Screen.Move(),
 ) {
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize(),
     ) {
-        val urlState by rememberUpdatedState(url)
-        val newTabState by rememberUpdatedState(newTab)
+        val urlState by rememberUpdatedState(screen.target)
+        val newTabState by rememberUpdatedState(screen.newTab)
 
         val density = LocalDensity.current
         val colorScheme = MaterialTheme.colorScheme

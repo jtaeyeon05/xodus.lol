@@ -16,7 +16,14 @@ fun NavController.navigationFromInitHash() {
 
     if (initHash.isBlank()) return
     when (initHash.substringBefore("?")) {
-        "start" -> navigate(Screen.Start)
+        "start" -> {
+            val partyMode = params.has("partyMode")
+            navigate(
+                Screen.Start(
+                    partyMode = partyMode
+                )
+            )
+        }
         "main" -> navigate(Screen.Main)
         "move" -> {
             val target = params.get("target")?.let { decodeURIComponent(it) }
@@ -38,7 +45,10 @@ suspend fun NavController.bindBrowserHash() {
             val route = entry.destination.route.orEmpty()
             when {
                 route.startsWith(Screen.Start.serializer().descriptor.serialName) -> {
-                    "#start"
+                    val args = entry.toRoute<Screen.Start>()
+                    "#start" + buildQuery(
+                        listQuery = listOf("partyMode".takeIf { args.partyMode })
+                    )
                 }
                 route.startsWith(Screen.Main.serializer().descriptor.serialName) -> {
                     "#main"
