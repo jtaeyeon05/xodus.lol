@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.taeyeon.xoduslol.Screen
+import com.taeyeon.xoduslol.navigation.Screen
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 

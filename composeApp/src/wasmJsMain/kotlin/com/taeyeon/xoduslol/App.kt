@@ -8,29 +8,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
+import com.taeyeon.xoduslol.navigation.Screen
+import com.taeyeon.xoduslol.navigation.appNavGraph
 import com.taeyeon.xoduslol.ui.AppTheme
-import com.taeyeon.xoduslol.ui.MainScreen
-import com.taeyeon.xoduslol.ui.MoveScreen
-import com.taeyeon.xoduslol.ui.StartScreen
-import kotlinx.serialization.Serializable
 
-
-object Screen {
-    @Serializable
-    data object Start
-
-    @Serializable
-    data object Main
-
-    @Serializable
-    data class Move(
-        val target: String?,
-        val newTab: Boolean = false,
-    )
-}
 
 @Composable
 fun App(
@@ -51,20 +33,7 @@ fun App(
                 navController = navController,
                 startDestination = Screen.Start
             ) {
-                composable<Screen.Start> {
-                    StartScreen(navController = navController)
-                }
-                composable<Screen.Main> {
-                    MainScreen(navController = navController)
-                }
-                composable<Screen.Move> { backStackEntry ->
-                    val move = backStackEntry.toRoute<Screen.Move>()
-                    MoveScreen(
-                        navController = navController,
-                        url = move.target,
-                        newTab = move.newTab,
-                    )
-                }
+                appNavGraph(navController = navController)
             }
         }
     }
