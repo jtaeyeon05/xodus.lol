@@ -62,6 +62,9 @@ fun MoveScreen(
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize(),
     ) {
+        val urlState by rememberUpdatedState(url)
+        val newTabState by rememberUpdatedState(newTab)
+
         val density = LocalDensity.current
         val colorScheme = MaterialTheme.colorScheme
 
@@ -103,11 +106,11 @@ fun MoveScreen(
                     ballUpProgress = upProgress
 
                     if (settleValue == "up") {
-                        if (newTab) {
-                            window.open(url ?: "https://github.com/jtaeyeon05", "_blank")?.focus()
+                        if (newTabState) {
+                            window.open(urlState ?: "https://github.com/jtaeyeon05", "_blank")?.focus()
                             anchoredDraggableState.animateTo("normal")
                         } else {
-                            window.open(url ?: "https://github.com/jtaeyeon05", "_self")
+                            window.open(urlState ?: "https://github.com/jtaeyeon05", "_self")
                         }
                     } else if (settleValue == "down") {
                         navController.popBackStack()
@@ -127,9 +130,9 @@ fun MoveScreen(
             ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            val messageList = if (url != null) listOf(
+            val messageList = if (urlState != null) listOf(
                 "다른 사이트로 이동하려고 하는구나",
-                "초록 원을 위로 올리면 아래 사이트로 이동할거야\n$url",
+                "초록 원을 위로 올리면 아래 사이트로 이동할거야\n$urlState",
                 "다시 원래 화면으로 돌아가고 싶으면\n초록 원을 아래로 내려줘",
                 "그러면 나는 너의 선택을 기다릴게",
                 "• • •",
@@ -142,9 +145,9 @@ fun MoveScreen(
                 "그러면 나는 너의 선택을 기다릴게",
                 "• • •",
             )
-            var message by rememberSaveable(url) { mutableStateOf("") }
+            var message by rememberSaveable(urlState) { mutableStateOf("") }
             var messageNotifier by rememberSaveable { mutableStateOf(0) }
-            LaunchedEffect(messageNotifier, url) {
+            LaunchedEffect(messageNotifier, urlState) {
                 for (i in messageList.indices) {
                     message = ""
                     for (j in 0 ..< messageList[i].length) {
