@@ -143,7 +143,8 @@ fun MoveScreen(
                 "• • •",
             )
             var message by rememberSaveable(url) { mutableStateOf("") }
-            LaunchedEffect(url) {
+            var messageNotifier by rememberSaveable { mutableStateOf(0) }
+            LaunchedEffect(messageNotifier, url) {
                 for (i in messageList.indices) {
                     message = ""
                     for (j in 0 ..< messageList[i].length) {
@@ -155,7 +156,7 @@ fun MoveScreen(
             }
 
             Surface(
-                onClick = {  },
+                onClick = { messageNotifier++ },
                 color = colorScheme.primary,
                 contentColor = colorScheme.onPrimary,
             ) {
