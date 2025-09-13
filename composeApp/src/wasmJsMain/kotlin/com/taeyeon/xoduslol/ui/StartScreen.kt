@@ -1,6 +1,11 @@
 package com.taeyeon.xoduslol.ui
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.draggable2D
@@ -11,48 +16,85 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEmotions
-import androidx.compose.material.icons.filled.Fingerprint
+import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.twotone.Lightbulb
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.taeyeon.xoduslol.navigation.Screen
+import io.github.vinceglb.confettikit.compose.ConfettiKit
+import io.github.vinceglb.confettikit.core.Angle
+import io.github.vinceglb.confettikit.core.Party
+import io.github.vinceglb.confettikit.core.Position
+import io.github.vinceglb.confettikit.core.Spread
+import io.github.vinceglb.confettikit.core.emitter.Emitter
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.seconds
 
 
 @Composable
 fun StartScreen(navController: NavController = rememberNavController()) {
-    var boldIndex by rememberSaveable { mutableStateOf(0) }
-    LaunchedEffect(true) {
-        while (true) {
-            boldIndex++
-            if (boldIndex == Int.MAX_VALUE) boldIndex = 0
-            delay(250)
-        }
-    }
-
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
+        var rainbowMode by rememberSaveable { mutableStateOf(false) }
+
         Column(
             modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            var titleSize by remember { mutableStateOf(IntSize.Zero) }
+            val offsetX by rememberInfiniteTransition()
+                .animateFloat(
+                    initialValue = -titleSize.width.toFloat(),
+                    targetValue = 0f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(durationMillis = 2000, easing = LinearEasing),
+                        repeatMode = RepeatMode.Restart
+                    ),
+                )
+
             Text(
+                modifier = Modifier.onSizeChanged { titleSize = it },
                 text = buildAnnotatedString {
+                    if (rainbowMode) {
+                        pushStyle(
+                            SpanStyle(
+                                brush = Brush.linearGradient(
+                                    colors = List(21) { index ->
+                                        Color.hsl(
+                                            hue = 36f * (index % 10),
+                                            saturation = 0.9f,
+                                            lightness = 0.4f
+                                        )
+                                    },
+                                    start = Offset(offsetX, 0f),
+                                    end = Offset(offsetX + titleSize.width.toFloat() * 2f, 0f)
+                                )
+                            )
+                        )
+                    }
+
                     append("Hi, It's ")
                     withStyle(
                         style = SpanStyle(fontWeight = FontWeight.Bold)
@@ -74,6 +116,15 @@ fun StartScreen(navController: NavController = rememberNavController()) {
                 ),
             ) {
                 val buttonText = "Let's Go"
+                var boldIndex by rememberSaveable { mutableStateOf(0) }
+                LaunchedEffect(true) {
+                    while (true) {
+                        boldIndex++
+                        if (boldIndex == Int.MAX_VALUE) boldIndex = 0
+                        delay(250)
+                    }
+                }
+
                 Text(
                     text = buildAnnotatedString {
                         for (i in 0 ..< buttonText.length) {
@@ -117,12 +168,12 @@ fun StartScreen(navController: NavController = rememberNavController()) {
                 .padding(12.dp)
                 .requiredSize(48.dp)
                 .align(Alignment.TopEnd),
-            onClick = { /* TODO */ },
+            onClick = { rainbowMode = !rainbowMode },
         ) {
             Icon(
                 modifier = Modifier.padding(12.dp),
-                imageVector = Icons.Filled.Fingerprint,
-                contentDescription = "헉",
+                imageVector = if (rainbowMode) Icons.Filled.Lightbulb else Icons.TwoTone.Lightbulb,
+                contentDescription = "파티!",
             )
         }
 
@@ -222,6 +273,30 @@ fun StartScreen(navController: NavController = rememberNavController()) {
                     contentDescription = "버튼버튼",
                 )
             }
+        }
+
+        if (rainbowMode) {
+            ConfettiKit(
+                modifier = Modifier.fillMaxSize(),
+                parties = listOf(
+                    Party(
+                        speed = 0f,
+                        maxSpeed = 15f,
+                        damping = 0.9f,
+                        angle = Angle.BOTTOM,
+                        spread = Spread.ROUND,
+                        colors = List(10) { index ->
+                            Color.hsl(
+                                hue = 36f * (index % 10),
+                                saturation = 0.9f,
+                                lightness = 0.8f
+                            ).toArgb()
+                        },
+                        position = Position.Relative(0.0, 0.0).between(Position.Relative(1.0, 0.0)),
+                        emitter = Emitter(duration = 10.seconds).perSecond(100),
+                    )
+                ),
+            )
         }
     }
 }
