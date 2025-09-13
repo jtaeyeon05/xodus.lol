@@ -1,4 +1,4 @@
-package com.taeyeon.xoduslol
+package com.taeyeon.xoduslol.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

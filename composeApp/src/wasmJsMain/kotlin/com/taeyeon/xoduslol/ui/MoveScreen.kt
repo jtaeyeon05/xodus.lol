@@ -46,7 +46,11 @@ import kotlin.math.roundToInt
 
 
 @Composable
-fun MoveScreen(navController: NavController = rememberNavController()) {
+fun MoveScreen(
+    navController: NavController = rememberNavController(),
+    url: String? = null,
+    newTab: Boolean = false,
+) {
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -114,7 +118,7 @@ fun MoveScreen(navController: NavController = rememberNavController()) {
             val messageList = listOf(
                 "다른 사이트로 이동하려고 하는구나",
                 "그래, 초록 원을 위로 올리면\n" +
-                        "https://jtaeyeon05.github.io/\n" +
+                        "$url\n" +
                         "로 이동할거야",
                 "다시 원래 화면으로 돌아가고 싶으면\n" +
                         "초록 원을 아래로 내려줘",

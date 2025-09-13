@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.taeyeon.xoduslol.Screen
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
@@ -65,7 +66,7 @@ fun StartScreen(navController: NavController = rememberNavController()) {
             Spacer(Modifier.height(24.dp))
 
             Button(
-                onClick = { navController.navigate(route = "main") },
+                onClick = { navController.navigate(Screen.Main) },
                 shape = RectangleShape,
                 contentPadding = PaddingValues(
                     vertical = 16.dp,
@@ -196,7 +197,7 @@ fun StartScreen(navController: NavController = rememberNavController()) {
                     .requiredSize(48.dp)
                     .clip(CircleShape)
                     .combinedClickable(
-                        onClick = { navController.navigate(route = "move") },
+                        onClick = { navController.navigate(Screen.Move(target = "https://jtaeyeon05.github.io/")) },
                         onLongClick = {
                             messageNotifier++
                             buttonButtonX = 0f
