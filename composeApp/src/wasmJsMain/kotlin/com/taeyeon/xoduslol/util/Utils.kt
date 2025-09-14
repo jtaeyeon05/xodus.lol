@@ -3,6 +3,8 @@ package com.taeyeon.xoduslol.util
 import kotlinx.browser.window
 
 
+fun Float.floorMultiple(step: Float) = (this / step).toInt() * step
+
 @JsFun("str => encodeURIComponent(str)")
 external fun encodeURIComponent(str: String): String
 

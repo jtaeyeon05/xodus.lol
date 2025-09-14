@@ -21,6 +21,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -33,13 +34,19 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.taeyeon.xoduslol.navigation.Screen
+import com.taeyeon.xoduslol.util.floorMultiple
 import kotlinx.coroutines.delay
+import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
 
 @Composable
-fun MainScreen(navController: NavController = rememberNavController()) {
+fun MainScreen(
+    navController: NavController = rememberNavController(),
+    screen: Screen.Main = Screen.Main(),
+) {
     BoxWithConstraints {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -60,19 +67,15 @@ fun MainScreen(navController: NavController = rememberNavController()) {
                     .weight(2f)
                     .background(MaterialTheme.colorScheme.primary)
             ) {
-                val fullText1 = "Actually... I haven't finished developing this page yet."
-                val fullText2 = "Therefore, I have nothing to show you. Sorry."
+                val message by rememberUpdatedState(screen.message)
                 var textContent by rememberSaveable { mutableStateOf("") }
-                LaunchedEffect(true) {
-                    for (i in fullText1.indices) {
-                        textContent += fullText1[i]
-                        delay(100)
-                    }
-                    textContent += "\n"
-                    delay(500)
-                    for (i in fullText2.indices) {
-                        textContent += fullText2[i]
-                        delay(100)
+                LaunchedEffect(message) {
+                    textContent = ""
+                    if (message != null) {
+                        for (i in message!!.indices) {
+                            textContent += message!![i]
+                            delay(100)
+                        }
                     }
                 }
 
@@ -104,8 +107,8 @@ fun MainScreen(navController: NavController = rememberNavController()) {
             LaunchedEffect(cloudNotifier, maxWidth, maxHeight) {
                 cloudW = listOf(100.dp, 150.dp, 200.dp)[Random.nextInt(3)]
                 cloudH = listOf(50.dp, 75.dp, 100.dp)[Random.nextInt(3)]
-                cloudX = if (cloudNotifier == 0) (maxWidth + cloudW) * Random.nextFloat() - cloudW else maxWidth + 300.dp * Random.nextFloat()
-                cloudY = ((((maxHeight.value * 0.6f - 100 - cloudH.value) * Random.nextFloat() + 50) / 25).roundToInt() * 25).dp
+                cloudX = if (cloudNotifier == 0) ((maxWidth + cloudW).value * Random.nextFloat()).floorMultiple(10f).dp - cloudW else (maxWidth + 300.dp * Random.nextFloat()).value.floorMultiple(10f).dp
+                cloudY = ((maxHeight * 0.6f - 100.dp - cloudH).value * Random.nextFloat() + 50).floorMultiple(25f).dp
 
                 while (cloudX >= -cloudW) {
                     cloudX -= 50.dp
@@ -127,7 +130,10 @@ fun MainScreen(navController: NavController = rememberNavController()) {
         Box(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(100.dp)
+                .padding(
+                    vertical = min((maxHeight.value * 0.6f - 100f) * 0.5f, 100f).coerceAtLeast(0f).dp,
+                    horizontal = min((maxWidth.value - 100f) * 0.5f, 100f).coerceAtLeast(0f).dp
+                )
                 .size(100.dp)
                 .background(MaterialTheme.colorScheme.secondaryContainer)
                 .clickable(

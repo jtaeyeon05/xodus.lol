@@ -24,7 +24,14 @@ fun NavController.navigationFromInitHash() {
                 )
             )
         }
-        "main" -> navigate(Screen.Main)
+        "main" -> {
+            val message = params.get("message")?.let { decodeURIComponent(it) }
+            navigate(
+                Screen.Main(
+                    message = message
+                )
+            )
+        }
         "move" -> {
             val target = params.get("target")?.let { decodeURIComponent(it) }
             val newTab = params.has("newTab")
@@ -51,7 +58,10 @@ suspend fun NavController.bindBrowserHash() {
                     )
                 }
                 route.startsWith(Screen.Main.serializer().descriptor.serialName) -> {
-                    "#main"
+                    val args = entry.toRoute<Screen.Main>()
+                    "#main" + buildQuery(
+                        mapQuery = mapOf("message" to args.message),
+                    )
                 }
                 route.startsWith(Screen.Move.serializer().descriptor.serialName) -> {
                     val args = entry.toRoute<Screen.Move>()

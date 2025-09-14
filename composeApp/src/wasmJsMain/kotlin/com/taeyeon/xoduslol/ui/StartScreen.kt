@@ -112,7 +112,7 @@ fun StartScreen(
             Spacer(Modifier.height(24.dp))
 
             Button(
-                onClick = { navController.navigate(Screen.Main) },
+                onClick = { navController.navigate(Screen.Main(message = "Hi, It's Me!")) },
                 shape = RectangleShape,
                 contentPadding = PaddingValues(
                     vertical = 16.dp,

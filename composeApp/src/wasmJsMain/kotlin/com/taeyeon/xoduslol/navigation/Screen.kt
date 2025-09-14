@@ -9,7 +9,9 @@ object Screen {
     )
 
     @Serializable
-    data object Main
+    data class Main(
+        val message: String? = null,
+    )
 
     @Serializable
     data class Move(

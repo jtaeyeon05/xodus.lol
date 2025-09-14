@@ -16,8 +16,11 @@ fun NavGraphBuilder.appNavGraph(navController: NavController) {
             screen = backStackEntry.toRoute<Screen.Start>()
         )
     }
-    composable<Screen.Main> {
-        MainScreen(navController = navController)
+    composable<Screen.Main> { backStackEntry ->
+        MainScreen(
+            navController = navController,
+            screen = backStackEntry.toRoute<Screen.Main>()
+        )
     }
     composable<Screen.Move> { backStackEntry ->
         MoveScreen(
