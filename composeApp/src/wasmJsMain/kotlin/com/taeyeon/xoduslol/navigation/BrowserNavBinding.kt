@@ -16,19 +16,11 @@ fun NavController.navigationFromInitHash() {
 
     if (initHash.isBlank()) return
     when (initHash.substringBefore("?")) {
-        "start" -> {
+        "start", "" -> {
             val partyMode = params.has("partyMode")
             navigate(
                 Screen.Start(
                     partyMode = partyMode
-                )
-            )
-        }
-        "main" -> {
-            val message = params.get("message")?.let { decodeURIComponent(it) }
-            navigate(
-                Screen.Main(
-                    message = message
                 )
             )
         }
@@ -39,6 +31,21 @@ fun NavController.navigationFromInitHash() {
                 Screen.Move(
                     target = target,
                     newTab = newTab
+                )
+            )
+        }
+        "plain" -> {
+            val message = params.get("message")?.let { decodeURIComponent(it) }
+            navigate(
+                Screen.Plain(
+                    message = message
+                )
+            )
+        }
+        else -> {
+            navigate(
+                Screen.Plain(
+                    message = "음... \"$initHash\"라는 주소는 존재하지 않아."
                 )
             )
         }
@@ -57,17 +64,17 @@ suspend fun NavController.bindBrowserHash() {
                         listQuery = listOf("partyMode".takeIf { args.partyMode })
                     )
                 }
-                route.startsWith(Screen.Main.serializer().descriptor.serialName) -> {
-                    val args = entry.toRoute<Screen.Main>()
-                    "#main" + buildQuery(
-                        mapQuery = mapOf("message" to args.message),
-                    )
-                }
                 route.startsWith(Screen.Move.serializer().descriptor.serialName) -> {
                     val args = entry.toRoute<Screen.Move>()
                     "#move" + buildQuery(
                         mapQuery = mapOf("target" to args.target),
                         listQuery = listOf("newTab".takeIf { args.newTab })
+                    )
+                }
+                route.startsWith(Screen.Plain.serializer().descriptor.serialName) -> {
+                    val args = entry.toRoute<Screen.Plain>()
+                    "#plain" + buildQuery(
+                        mapQuery = mapOf("message" to args.message),
                     )
                 }
                 else -> ""

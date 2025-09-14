@@ -10,9 +10,11 @@ import kotlinx.browser.document
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
     ComposeViewport(document.body!!) {
-        App(onNavHostReady = { navController ->
-            navController.navigationFromInitHash()
-            navController.bindBrowserHash()
-        })
+        App(
+            onNavHostReady = { navController ->
+                navController.navigationFromInitHash()
+                navController.bindBrowserHash()
+            }
+        )
     }
 }

@@ -9,13 +9,13 @@ object Screen {
     )
 
     @Serializable
-    data class Main(
-        val message: String? = null,
-    )
-
-    @Serializable
     data class Move(
         val target: String? = null,
         val newTab: Boolean = false,
+    )
+
+    @Serializable
+    data class Plain(
+        val message: String? = null,
     )
 }

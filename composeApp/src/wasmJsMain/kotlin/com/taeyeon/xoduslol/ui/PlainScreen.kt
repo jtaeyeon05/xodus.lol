@@ -38,14 +38,13 @@ import com.taeyeon.xoduslol.navigation.Screen
 import com.taeyeon.xoduslol.util.floorMultiple
 import kotlinx.coroutines.delay
 import kotlin.math.min
-import kotlin.math.roundToInt
 import kotlin.random.Random
 
 
 @Composable
-fun MainScreen(
+fun PlainScreen(
     navController: NavController = rememberNavController(),
-    screen: Screen.Main = Screen.Main(),
+    screen: Screen.Plain = Screen.Plain(),
 ) {
     BoxWithConstraints {
         Column(
