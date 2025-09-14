@@ -72,11 +72,11 @@ fun MoveScreen(
         val density = LocalDensity.current
         val colorScheme = MaterialTheme.colorScheme
 
-        val normalBallSize = if (maxHeight >= maxWidth * 1.5f) maxWidth * 1.2f else maxHeight * 0.75f
-        val changeBallSize = hypot(maxWidth.value, maxHeight.value).dp * 1.2f - normalBallSize
-
         val squaredUpImage = imageResource(Res.drawable.SquaredUp)
         val squaredCircleImage = imageResource(Res.drawable.SquaredCircle)
+
+        val normalBallSize = if (maxHeight >= maxWidth * 1.5f) maxWidth * 1.2f else maxHeight * 0.75f
+        val changeBallSize = hypot(maxWidth.value, maxHeight.value).dp * 1.2f - normalBallSize
 
         val anchoredDraggableState = remember(maxWidth, maxHeight) {
             AnchoredDraggableState(

@@ -186,16 +186,15 @@ fun StartScreen(
 
         val messageList = listOf(
             "안녕, 내 이름은 버튼버튼이야",
-            "날 절-대 클릭하지마",
-            "날 클릭하면 나의 다른 사이트로 이동할거야",
+            "날 절-대 길게 클릭하거나 옮기지 마!",
+            "날 길게 클릭하면 다른 사이트로 이동할거야",
             "대신 아래 버튼을 클릭해",
-            "아 그리고 날 옮기지 마!",
             "그러면 나는 이만 가볼게",
         )
         var message by rememberSaveable { mutableStateOf<String?>(null) }
         var messageNotifier by rememberSaveable { mutableStateOf(0) }
         LaunchedEffect(messageNotifier) {
-            for (i in 0 ..< 6) {
+            for (i in messageList.indices) {
                 message = messageList[i]
                 delay(2500)
             }
@@ -255,12 +254,12 @@ fun StartScreen(
                     .requiredSize(48.dp)
                     .clip(CircleShape)
                     .combinedClickable(
-                        onClick = { navController.navigate(Screen.Move(target = "https://jtaeyeon05.github.io/")) },
-                        onLongClick = {
+                        onClick = {
                             messageNotifier++
                             buttonButtonX = 0f
                             buttonButtonY = 0f
-                        }
+                        },
+                        onLongClick = { navController.navigate(Screen.Move(target = "https://jtaeyeon05.github.io/")) },
                     )
                     .draggable2D(
                         state = rememberDraggable2DState { delta ->
