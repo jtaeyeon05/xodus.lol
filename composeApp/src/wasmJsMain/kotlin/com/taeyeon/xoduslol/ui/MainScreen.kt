@@ -41,6 +41,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.taeyeon.xoduslol.util.GainNode
+import com.taeyeon.xoduslol.util.OscillatorNode
+import com.taeyeon.xoduslol.util.createAudioContext
+import com.taeyeon.xoduslol.util.playTone
+import com.taeyeon.xoduslol.util.stopTone
+import com.taeyeon.xoduslol.util.updateFrequency
+import com.taeyeon.xoduslol.util.updateGain
+import com.taeyeon.xoduslol.util.updateWaveform
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.imageResource
 import xoduslol.composeapp.generated.resources.Res
@@ -65,13 +73,45 @@ fun MainScreen(
 
         var knobXRatio by rememberSaveable { mutableStateOf(0.5f) }
         var knobYRatio by rememberSaveable { mutableStateOf(0.5f) }
-        var knobSizeRatio by rememberSaveable { mutableStateOf(0.5f) }
+        var knobSizeRatio by rememberSaveable { mutableStateOf(0.5f) } // TODO
 
         var canvasSize by remember { mutableStateOf(IntSize.Zero) }
         val knobSize by remember { derivedStateOf { KNOB_MIN_SIZE + (KNOB_MAX_SIZE - KNOB_MIN_SIZE) * knobSizeRatio } }
-
-        var isPlaying by rememberSaveable { mutableStateOf(false) }
         var playButtonText by rememberSaveable { mutableStateOf("PLAY") }
+
+        val audioContext = rememberSaveable { createAudioContext() }
+        var gainNode by rememberSaveable { mutableStateOf<GainNode?>(null) }
+        var oscillatorNode by rememberSaveable { mutableStateOf<OscillatorNode?>(null) }
+
+        val gain by rememberSaveable { derivedStateOf { knobXRatio.toDouble().coerceIn(0.0, 1.0) } }
+        val frequency by rememberSaveable { derivedStateOf { ((1f - knobYRatio) * 2000f + 50f).toDouble() } }
+        var waveForm by rememberSaveable { mutableStateOf("sine") } // TODO
+        var isPlaying by rememberSaveable { mutableStateOf(false) }
+
+        LaunchedEffect(gain) {
+            if (gainNode != null && isPlaying) {
+                audioContext.updateGain(
+                    newGain = gain,
+                    gainNode = gainNode!!
+                )
+            }
+        }
+        LaunchedEffect(frequency) {
+            if (oscillatorNode != null && isPlaying) {
+                audioContext.updateFrequency(
+                    newFrequency = frequency,
+                    oscillatorNode = oscillatorNode!!
+                )
+            }
+        }
+        LaunchedEffect(waveForm) {
+            if (oscillatorNode != null && isPlaying) {
+                audioContext.updateWaveform(
+                    newWaveForm = waveForm,
+                    oscillatorNode = oscillatorNode!!
+                )
+            }
+        }
 
         LaunchedEffect(isPlaying) {
             if (isPlaying) {
@@ -137,7 +177,7 @@ fun MainScreen(
 
                 drawRect(
                     brush = Brush.linearGradient(
-                        colors = listOf(colorScheme.primary, colorScheme.secondary, colorScheme.tertiary),
+                        colors = listOf(colorScheme.tertiary, colorScheme.primary, colorScheme.secondary),
                         start = Offset(x = 0f, y = heightPx.toFloat()),
                         end = Offset(x = widthPx.toFloat(), y = 0f),
                     ),
@@ -151,7 +191,27 @@ fun MainScreen(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { isPlaying = !isPlaying },
+                .clickable {
+                    isPlaying = !isPlaying
+                    if (isPlaying) {
+                        audioContext.playTone(
+                            frequency = frequency,
+                            gain = gain,
+                            waveForm = waveForm,
+                            setGainNode = { gainNode = it },
+                            setOscillatorNode = { oscillatorNode = it },
+                        )
+                    } else {
+                        if (gainNode != null && oscillatorNode != null) {
+                            audioContext.stopTone(
+                                gainNode = gainNode!!,
+                                oscillatorNode = oscillatorNode!!,
+                                setGainNode = { gainNode = it },
+                                setOscillatorNode = { oscillatorNode = it },
+                            )
+                        }
+                    }
+                },
             color = colorScheme.primary,
             contentColor = colorScheme.onPrimary,
         ) {
