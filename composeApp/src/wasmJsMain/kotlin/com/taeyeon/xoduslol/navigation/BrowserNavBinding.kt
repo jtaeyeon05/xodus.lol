@@ -24,6 +24,9 @@ fun NavController.navigationFromInitHash() {
                 )
             )
         }
+        "main" -> {
+            navigate(Screen.Main)
+        }
         "move" -> {
             val target = params.get("target")?.let { decodeURIComponent(it) }
             val newTab = params.has("newTab")
@@ -63,6 +66,9 @@ suspend fun NavController.bindBrowserHash() {
                     "#start" + buildQuery(
                         listQuery = listOf("partyMode".takeIf { args.partyMode })
                     )
+                }
+                route.startsWith(Screen.Main.serializer().descriptor.serialName) -> {
+                    "#main"
                 }
                 route.startsWith(Screen.Move.serializer().descriptor.serialName) -> {
                     val args = entry.toRoute<Screen.Move>()
