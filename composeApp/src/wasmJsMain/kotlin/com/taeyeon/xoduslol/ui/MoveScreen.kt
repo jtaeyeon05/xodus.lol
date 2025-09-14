@@ -7,9 +7,12 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEmotions
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -32,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
@@ -180,10 +184,17 @@ fun MoveScreen(
                     )
                 }
             }
-            Text(
+            BasicText(
                 text = message,
-                fontSize = 16.sp,
-                textAlign = TextAlign.Center,
+                maxLines = message.count { it == '\n' } + 1,
+                style = LocalTextStyle.current.copy(
+                    textAlign = TextAlign.Center,
+                    lineHeight = 1.2f.em
+                ),
+                autoSize = TextAutoSize.StepBased(
+                    maxFontSize = 24.sp,
+                    stepSize = 2.sp,
+                ),
             )
         }
 

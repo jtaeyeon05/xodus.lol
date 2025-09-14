@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -73,15 +76,20 @@ fun MainScreen(navController: NavController = rememberNavController()) {
                     }
                 }
 
-                Text(
+                BasicText(
                     modifier = Modifier
                         .align(Alignment.Center)
                         .padding(24.dp),
                     text = textContent,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    fontSize = 32.sp,
-                    textAlign = TextAlign.Center,
-                    lineHeight = 40.sp,
+                    style = LocalTextStyle.current.copy(
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        textAlign = TextAlign.Center,
+                        lineHeight = 1.2f.em,
+                    ),
+                    autoSize = TextAutoSize.StepBased(
+                        maxFontSize = 32.sp,
+                        stepSize = 2.sp,
+                    ),
                 )
             }
         }
