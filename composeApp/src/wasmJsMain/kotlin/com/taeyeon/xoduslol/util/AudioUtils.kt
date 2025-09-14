@@ -36,7 +36,7 @@ external class AudioContext {
 }
 
 
-@JsFun("() => window.AudioContext ? new window.AudioContext() : window.webkitAudioContext")
+@JsFun("() => window.AudioContext ? new window.AudioContext() : new window.webkitAudioContext()")
 external fun createAudioContext(): AudioContext
 
 fun AudioContext.playTone(
