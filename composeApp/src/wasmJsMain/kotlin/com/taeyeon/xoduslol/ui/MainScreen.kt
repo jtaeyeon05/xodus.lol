@@ -4,22 +4,13 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -31,6 +22,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.layout.onSizeChanged
@@ -41,18 +33,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.taeyeon.xoduslol.util.GainNode
-import com.taeyeon.xoduslol.util.OscillatorNode
-import com.taeyeon.xoduslol.util.createAudioContext
-import com.taeyeon.xoduslol.util.playTone
-import com.taeyeon.xoduslol.util.stopTone
-import com.taeyeon.xoduslol.util.updateFrequency
-import com.taeyeon.xoduslol.util.updateGain
-import com.taeyeon.xoduslol.util.updateWaveform
+import com.taeyeon.xoduslol.navigation.Screen
+import com.taeyeon.xoduslol.util.*
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.imageResource
 import xoduslol.composeapp.generated.resources.Res
 import xoduslol.composeapp.generated.resources.SquaredCircle
+import xoduslol.composeapp.generated.resources.SquaredFace
+import xoduslol.composeapp.generated.resources.SquaredLeft
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
@@ -91,6 +79,19 @@ fun MainScreen(
         var waveForm by rememberSaveable { mutableStateOf("sine") } // TODO
         var isPlaying by rememberSaveable { mutableStateOf(false) }
 
+        DisposableEffect(true) {
+            onDispose {
+                if (isPlaying && gainNode != null && oscillatorNode != null) {
+                    audioContext.stopTone(
+                        gainNode = gainNode!!,
+                        oscillatorNode = oscillatorNode!!,
+                        setGainNode = { gainNode = it },
+                        setOscillatorNode = { oscillatorNode = it }
+                    )
+                }
+            }
+        }
+
         LaunchedEffect(gain) {
             if (gainNode != null && isPlaying) {
                 audioContext.updateGain(
@@ -127,67 +128,143 @@ fun MainScreen(
             }
         }
 
-        Canvas(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .onSizeChanged { canvasSize = it }
-                .transformable(
-                    state = rememberTransformableState { zoomChange, offsetChange, _ ->
-                        knobSizeRatio *= zoomChange
-                        knobSizeRatio = knobSizeRatio.coerceIn(0f, 1f)
-                        with (density) {
-                            knobXRatio += offsetChange.x / (canvasSize.width - knobSize.toPx())
-                            knobYRatio += offsetChange.y / (canvasSize.height - knobSize.toPx())
-                            knobXRatio = knobXRatio.coerceIn(0f, 1f)
-                            knobYRatio = knobYRatio.coerceIn(0f, 1f)
-                        }
-                    }
-                )
-                .onPointerEvent(PointerEventType.Scroll) { pointerEvent ->
-                    knobSizeRatio -= pointerEvent.changes.first().scrollDelta.y / 500f
-                    knobSizeRatio = knobSizeRatio.coerceIn(0f, 1f)
-                }
         ) {
-            val widthPx = canvasSize.width
-            val heightPx = canvasSize.height
+            Canvas(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .onSizeChanged { canvasSize = it }
+                    .transformable(
+                        state = rememberTransformableState { zoomChange, offsetChange, _ ->
+                            knobSizeRatio *= zoomChange
+                            knobSizeRatio = knobSizeRatio.coerceIn(0f, 1f)
+                            with(density) {
+                                knobXRatio += offsetChange.x / (canvasSize.width - knobSize.toPx())
+                                knobYRatio += offsetChange.y / (canvasSize.height - knobSize.toPx())
+                                knobXRatio = knobXRatio.coerceIn(0f, 1f)
+                                knobYRatio = knobYRatio.coerceIn(0f, 1f)
+                            }
+                        }
+                    )
+                    .onPointerEvent(PointerEventType.Scroll) { pointerEvent ->
+                        knobSizeRatio -= pointerEvent.changes.first().scrollDelta.y / 500f
+                        knobSizeRatio = knobSizeRatio.coerceIn(0f, 1f)
+                    }
+            ) {
+                val widthPx = canvasSize.width
+                val heightPx = canvasSize.height
 
-            val knobPx = knobSize.toPx()
+                val knobPx = knobSize.toPx()
 
-            drawIntoCanvas { canvas ->
-                canvas.saveLayer(
-                    bounds = Rect(
-                        left = 0f,
-                        top = 0f,
-                        right = widthPx.toFloat(),
-                        bottom = heightPx.toFloat()
+                drawIntoCanvas { canvas ->
+                    canvas.saveLayer(
+                        bounds = Rect(
+                            left = 0f,
+                            top = 0f,
+                            right = widthPx.toFloat(),
+                            bottom = heightPx.toFloat()
+                        ),
+                        paint = Paint()
+                    )
+
+                    drawImage(
+                        image = squaredCircleImage,
+                        dstOffset = IntOffset(
+                            x = ((widthPx - knobPx) * knobXRatio).roundToInt(),
+                            y = ((heightPx - knobPx) * knobYRatio).roundToInt()
+                        ),
+                        dstSize = IntSize(
+                            width = knobPx.roundToInt(),
+                            height = knobPx.roundToInt()
+                        ),
+                        filterQuality = FilterQuality.None
+                    )
+
+                    drawRect(
+                        brush = Brush.linearGradient(
+                            colors = listOf(colorScheme.tertiary, colorScheme.primary, colorScheme.secondary),
+                            start = Offset(x = 0f, y = heightPx.toFloat()),
+                            end = Offset(x = widthPx.toFloat(), y = 0f),
+                        ),
+                        topLeft = Offset(x = 0f, y = 0f),
+                        size = Size(width = widthPx.toFloat(), height = heightPx.toFloat()),
+                        blendMode = BlendMode.SrcIn
+                    )
+                }
+            }
+
+            // Popup Buttons
+            Surface(
+                modifier = Modifier
+                    .padding(12.dp)
+                    .requiredSize(48.dp)
+                    .align(Alignment.TopStart),
+                onClick = { navController.popBackStack<Screen.Start>(inclusive = false) },
+                color = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+            ) {
+                Icon(
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .size(24.dp),
+                    painter = BitmapPainter(
+                        image = imageResource(Res.drawable.SquaredLeft),
+                        filterQuality = FilterQuality.None,
                     ),
-                    paint = Paint()
+                    contentDescription = "뒤로",
                 )
+            }
 
-                drawImage(
-                    image = squaredCircleImage,
-                    dstOffset = IntOffset(
-                        x = ((widthPx - knobPx) * knobXRatio).roundToInt(),
-                        y = ((heightPx - knobPx) * knobYRatio).roundToInt()
-                    ),
-                    dstSize = IntSize(
-                        width = knobPx.roundToInt(),
-                        height = knobPx.roundToInt()
-                    ),
-                    filterQuality = FilterQuality.None
-                )
-
-                drawRect(
-                    brush = Brush.linearGradient(
-                        colors = listOf(colorScheme.tertiary, colorScheme.primary, colorScheme.secondary),
-                        start = Offset(x = 0f, y = heightPx.toFloat()),
-                        end = Offset(x = widthPx.toFloat(), y = 0f),
-                    ),
-                    topLeft = Offset(x = 0f, y = 0f),
-                    size = Size(width = widthPx.toFloat(), height = heightPx.toFloat()),
-                    blendMode = BlendMode.SrcIn
-                )
+            Row(
+                modifier = Modifier
+                    .padding(12.dp)
+                    .align(Alignment.TopEnd),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // TODO: Messsage
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Surface(
+                        modifier = Modifier.requiredSize(48.dp),
+                        onClick = { /* TODO */ },
+                        color = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                    ) {
+                        Icon(
+                            modifier = Modifier
+                                .padding(12.dp)
+                                .size(24.dp),
+                            painter = BitmapPainter(
+                                image = imageResource(Res.drawable.SquaredFace),
+                                filterQuality = FilterQuality.None,
+                            ),
+                            contentDescription = "버튼버튼",
+                        )
+                    }
+                    Surface(
+                        modifier = Modifier.requiredSize(48.dp),
+                        onClick = { /* TODO */ },
+                        color = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                    ) {
+                        Icon(
+                            modifier = Modifier
+                                .padding(12.dp)
+                                .size(24.dp),
+                            painter = BitmapPainter(
+                                image = imageResource(Res.drawable.SquaredCircle),
+                                filterQuality = FilterQuality.None,
+                            ),
+                            contentDescription = "버튼버튼",
+                        )
+                    }
+                }
             }
         }
 
