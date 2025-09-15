@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 object Screen {
     @Serializable
-    data class Start(
+    data class Home(
         val partyMode: Boolean = false,
     )
 

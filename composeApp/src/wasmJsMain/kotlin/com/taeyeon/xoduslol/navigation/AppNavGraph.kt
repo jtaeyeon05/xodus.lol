@@ -7,14 +7,14 @@ import androidx.navigation.toRoute
 import com.taeyeon.xoduslol.ui.screen.AudioPlaygroundScreen
 import com.taeyeon.xoduslol.ui.screen.PlainScreen
 import com.taeyeon.xoduslol.ui.screen.MoveScreen
-import com.taeyeon.xoduslol.ui.screen.StartScreen
+import com.taeyeon.xoduslol.ui.screen.HomeScreen
 
 
 fun NavGraphBuilder.appNavGraph(navController: NavController) {
-    composable<Screen.Start> { backStackEntry ->
-        StartScreen(
+    composable<Screen.Home> { backStackEntry ->
+        HomeScreen(
             navController = navController,
-            screen = backStackEntry.toRoute<Screen.Start>()
+            screen = backStackEntry.toRoute<Screen.Home>()
         )
     }
     composable<Screen.AudioPlayground> {

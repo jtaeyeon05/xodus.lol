@@ -16,10 +16,10 @@ fun NavController.navigationFromInitHash() {
 
     if (initHash.isBlank()) return
     when (initHash.substringBefore("?")) {
-        "start", "" -> {
+        "home", "" -> {
             val partyMode = params.has("partyMode")
             navigate(
-                Screen.Start(
+                Screen.Home(
                     partyMode = partyMode
                 )
             )
@@ -61,9 +61,9 @@ suspend fun NavController.bindBrowserHash() {
         getBackStackEntryRoute = { entry ->
             val route = entry.destination.route.orEmpty()
             when {
-                route.startsWith(Screen.Start.serializer().descriptor.serialName) -> {
-                    val args = entry.toRoute<Screen.Start>()
-                    "#start" + buildQuery(
+                route.startsWith(Screen.Home.serializer().descriptor.serialName) -> {
+                    val args = entry.toRoute<Screen.Home>()
+                    "#home" + buildQuery(
                         listQuery = listOf("partyMode".takeIf { args.partyMode })
                     )
                 }

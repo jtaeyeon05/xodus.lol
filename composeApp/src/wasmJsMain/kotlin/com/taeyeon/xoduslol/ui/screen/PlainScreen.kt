@@ -135,11 +135,7 @@ fun PlainScreen(
                 )
                 .size(100.dp)
                 .background(MaterialTheme.colorScheme.secondaryContainer)
-                .clickable(
-                    onClick = {
-                        navController.navigate(Screen.Start())
-                    }
-                )
+                .clickable { navController.navigate(Screen.Home()) }
         )
     }
 }

@@ -49,7 +49,6 @@ import xoduslol.composeapp.generated.resources.SquaredFace
 import xoduslol.composeapp.generated.resources.SquaredLeft
 import kotlin.math.pow
 import kotlin.math.roundToInt
-import kotlin.random.Random
 
 
 private const val MIN_FREQUENCY = 50f
@@ -236,7 +235,7 @@ fun AudioPlaygroundScreen(
                 modifier = Modifier
                     .padding(12.dp)
                     .align(Alignment.TopStart),
-                onClick = { navController.popBackStack<Screen.Start>(inclusive = false) },
+                onClick = { navController.popBackStack<Screen.Home>(inclusive = false) },
                 resource = Res.drawable.SquaredLeft,
                 contentDescription = "뒤로",
             )

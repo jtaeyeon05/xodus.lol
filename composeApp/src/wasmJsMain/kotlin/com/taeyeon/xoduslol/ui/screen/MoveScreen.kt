@@ -137,6 +137,7 @@ fun MoveScreen(
             )
             var message by rememberSaveable(urlState) { mutableStateOf("") }
             var messageNotifier by rememberSaveable { mutableStateOf(0) }
+
             LaunchedEffect(messageNotifier, urlState) {
                 for (i in messageList.indices) {
                     message = ""

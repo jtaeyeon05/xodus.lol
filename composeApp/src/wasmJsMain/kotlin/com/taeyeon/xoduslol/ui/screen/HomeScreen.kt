@@ -49,9 +49,9 @@ import kotlin.time.Duration.Companion.seconds
 
 
 @Composable
-fun StartScreen(
+fun HomeScreen(
     navController: NavController = rememberNavController(),
-    screen: Screen.Start = Screen.Start()
+    screen: Screen.Home = Screen.Home()
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
@@ -168,7 +168,7 @@ fun StartScreen(
                 .align(Alignment.TopEnd),
             onClick = {
                 partyMode = !partyMode
-                replaceHash(if (partyMode) "#start?partyMode" else "#start")
+                replaceHash(if (partyMode) "#home?partyMode" else "#home")
             },
             imageVector = if (partyMode) Icons.Filled.Lightbulb else Icons.TwoTone.Lightbulb,
             contentDescription = "파티!",
