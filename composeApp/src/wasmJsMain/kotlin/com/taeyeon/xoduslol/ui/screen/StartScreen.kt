@@ -1,13 +1,7 @@
-package com.taeyeon.xoduslol.ui
+package com.taeyeon.xoduslol.ui.screen
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.gestures.draggable2D
 import androidx.compose.foundation.gestures.rememberDraggable2DState
 import androidx.compose.foundation.layout.*
@@ -24,9 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.SpanStyle
@@ -40,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.taeyeon.xoduslol.navigation.Screen
+import com.taeyeon.xoduslol.ui.SquaredIconButton
 import com.taeyeon.xoduslol.util.replaceHash
 import io.github.vinceglb.confettikit.compose.ConfettiKit
 import io.github.vinceglb.confettikit.core.Angle
@@ -48,7 +41,6 @@ import io.github.vinceglb.confettikit.core.Position
 import io.github.vinceglb.confettikit.core.Spread
 import io.github.vinceglb.confettikit.core.emitter.Emitter
 import kotlinx.coroutines.delay
-import org.jetbrains.compose.resources.imageResource
 import xoduslol.composeapp.generated.resources.Res
 import xoduslol.composeapp.generated.resources.SquaredFace
 import kotlin.math.roundToInt
@@ -169,26 +161,17 @@ fun StartScreen(
             }
         }
 
-        Surface(
+        SquaredIconButton(
             modifier = Modifier
                 .padding(12.dp)
-                .requiredSize(48.dp)
                 .align(Alignment.TopEnd),
             onClick = {
                 partyMode = !partyMode
                 replaceHash(if (partyMode) "#start?partyMode" else "#start")
             },
-            color = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
-        ) {
-            Icon(
-                modifier = Modifier
-                    .padding(12.dp)
-                    .size(24.dp),
-                imageVector = if (partyMode) Icons.Filled.Lightbulb else Icons.TwoTone.Lightbulb,
-                contentDescription = "파티!",
-            )
-        }
+            imageVector = if (partyMode) Icons.Filled.Lightbulb else Icons.TwoTone.Lightbulb,
+            contentDescription = "파티!",
+        )
 
         val messageList = listOf(
             "안녕, 내 이름은 버튼버튼이야",
@@ -255,37 +238,23 @@ fun StartScreen(
                     }
                 }
             }
-            Surface(
+            SquaredIconButton(
                 modifier = Modifier
-                    .requiredSize(48.dp)
-                    .combinedClickable(
-                        onClick = {
-                            messageNotifier++
-                            buttonButtonX = 0f
-                            buttonButtonY = 0f
-                        },
-                        onLongClick = { navController.navigate(Screen.Move(target = "https://jtaeyeon05.github.io/")) },
-                    )
                     .draggable2D(
                         state = rememberDraggable2DState { delta ->
                             buttonButtonX += delta.x
                             buttonButtonY += delta.y
                         }
                     ),
-                color = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-            ) {
-                Icon(
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .size(24.dp),
-                    painter = BitmapPainter(
-                        image = imageResource(Res.drawable.SquaredFace),
-                        filterQuality = FilterQuality.None,
-                    ),
-                    contentDescription = "버튼버튼",
-                )
-            }
+                onClick = {
+                    messageNotifier++
+                    buttonButtonX = 0f
+                    buttonButtonY = 0f
+                },
+                onLongClick = { navController.navigate(Screen.Move(target = "https://jtaeyeon05.github.io/")) },
+                resource = Res.drawable.SquaredFace,
+                contentDescription = "버튼버튼",
+            )
         }
 
         if (partyMode) {

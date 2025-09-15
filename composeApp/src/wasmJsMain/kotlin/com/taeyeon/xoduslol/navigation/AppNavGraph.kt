@@ -4,10 +4,10 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import com.taeyeon.xoduslol.ui.MainScreen
-import com.taeyeon.xoduslol.ui.PlainScreen
-import com.taeyeon.xoduslol.ui.MoveScreen
-import com.taeyeon.xoduslol.ui.StartScreen
+import com.taeyeon.xoduslol.ui.screen.MainScreen
+import com.taeyeon.xoduslol.ui.screen.PlainScreen
+import com.taeyeon.xoduslol.ui.screen.MoveScreen
+import com.taeyeon.xoduslol.ui.screen.StartScreen
 
 
 fun NavGraphBuilder.appNavGraph(navController: NavController) {

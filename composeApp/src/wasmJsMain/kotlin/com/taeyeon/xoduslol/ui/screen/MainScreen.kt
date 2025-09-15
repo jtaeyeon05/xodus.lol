@@ -1,11 +1,10 @@
-package com.taeyeon.xoduslol.ui
+package com.taeyeon.xoduslol.ui.screen
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -22,7 +21,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.layout.onSizeChanged
@@ -34,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.taeyeon.xoduslol.navigation.Screen
+import com.taeyeon.xoduslol.ui.SquaredIconButton
 import com.taeyeon.xoduslol.util.*
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.imageResource
@@ -197,26 +196,14 @@ fun MainScreen(
             }
 
             // Popup Buttons
-            Surface(
+            SquaredIconButton(
                 modifier = Modifier
                     .padding(12.dp)
-                    .requiredSize(48.dp)
                     .align(Alignment.TopStart),
                 onClick = { navController.popBackStack<Screen.Start>(inclusive = false) },
-                color = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-            ) {
-                Icon(
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .size(24.dp),
-                    painter = BitmapPainter(
-                        image = imageResource(Res.drawable.SquaredLeft),
-                        filterQuality = FilterQuality.None,
-                    ),
-                    contentDescription = "뒤로",
-                )
-            }
+                resource = Res.drawable.SquaredLeft,
+                contentDescription = "뒤로",
+            )
 
             Row(
                 modifier = Modifier
@@ -225,45 +212,24 @@ fun MainScreen(
                 verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // TODO: Messsage
+                // TODO: Message
                 Column(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     horizontalAlignment = Alignment.End
                 ) {
-                    Surface(
-                        modifier = Modifier.requiredSize(48.dp),
+                    SquaredIconButton(
                         onClick = { /* TODO */ },
-                        color = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                    ) {
-                        Icon(
-                            modifier = Modifier
-                                .padding(12.dp)
-                                .size(24.dp),
-                            painter = BitmapPainter(
-                                image = imageResource(Res.drawable.SquaredFace),
-                                filterQuality = FilterQuality.None,
-                            ),
-                            contentDescription = "버튼버튼",
-                        )
-                    }
-                    Surface(
-                        modifier = Modifier.requiredSize(48.dp),
+                        resource = Res.drawable.SquaredFace,
+                        contentDescription = "버튼버튼",
+                    )
+                    SquaredIconButton(
                         onClick = { /* TODO */ },
-                        color = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                    ) {
-                        Icon(
-                            modifier = Modifier
-                                .padding(12.dp)
-                                .size(24.dp),
-                            painter = BitmapPainter(
-                                image = imageResource(Res.drawable.SquaredCircle),
-                                filterQuality = FilterQuality.None,
-                            ),
-                            contentDescription = "버튼버튼",
-                        )
-                    }
+                        text = "안녕"
+                    )
+                    SquaredIconButton(
+                        onClick = { /* TODO */ },
+                        text = "cosine"
+                    )
                 }
             }
         }

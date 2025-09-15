@@ -1,4 +1,4 @@
-package com.taeyeon.xoduslol.ui
+package com.taeyeon.xoduslol.ui.screen
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.*
