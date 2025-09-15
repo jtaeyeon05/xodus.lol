@@ -42,7 +42,6 @@ import com.taeyeon.xoduslol.navigation.Screen
 import com.taeyeon.xoduslol.ui.SquaredIconButton
 import com.taeyeon.xoduslol.util.*
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.imageResource
 import xoduslol.composeapp.generated.resources.Res
 import xoduslol.composeapp.generated.resources.SquaredCircle
@@ -50,6 +49,7 @@ import xoduslol.composeapp.generated.resources.SquaredFace
 import xoduslol.composeapp.generated.resources.SquaredLeft
 import kotlin.math.pow
 import kotlin.math.roundToInt
+import kotlin.random.Random
 
 
 private const val MIN_FREQUENCY = 50f
@@ -69,7 +69,6 @@ fun AudioPlaygroundScreen(
     ) {
         val density = LocalDensity.current
         val colorScheme = MaterialTheme.colorScheme
-        val coroutineScope = rememberCoroutineScope()
         val squaredCircleImage = imageResource(Res.drawable.SquaredCircle)
 
         var knobXRatio by rememberSaveable { mutableStateOf(0.5f) }
@@ -261,6 +260,7 @@ fun AudioPlaygroundScreen(
                     "크기를 조절해 Detune을 조절할 수 있어",
                     "그리고, 노브를 더블탭해 Gain, Frequency, Detune을 초기화시킬 수 있어",
                     "또한, 버튼을 통해 파형을 바꿀 수 있어",
+                    "iOS에서도 작동하게 하느라 힘들었어",
                     "그러면, 이를 이용해 여러 소리를 내봐!",
                 )
                 var message by rememberSaveable { mutableStateOf<String?>(null) }
@@ -334,18 +334,19 @@ fun AudioPlaygroundScreen(
                 .clickable {
                     isPlaying = !isPlaying
                     if (isPlaying) {
-                        coroutineScope.launch {
-                            if (audioContext == null) audioContext = createAudioContext()
-                            audioContext!!.playTone(
-                                frequency = frequency,
-                                gain = gain,
-                                detune = detune,
-                                waveForm = waveForm,
-                                setGainNode = { gainNode = it },
-                                setOscillatorNode = { oscillatorNode = it },
-                                setOscillatorDetuneNode = { oscillatorDetuneNode = it },
-                            )
+                        if (audioContext == null) {
+                            unblockIosPlayback()
+                            audioContext = createAudioContext()
                         }
+                        audioContext!!.playTone(
+                            frequency = frequency,
+                            gain = gain,
+                            detune = detune,
+                            waveForm = waveForm,
+                            setGainNode = { gainNode = it },
+                            setOscillatorNode = { oscillatorNode = it },
+                            setOscillatorDetuneNode = { oscillatorDetuneNode = it },
+                        )
                     } else {
                         if (audioContext != null && gainNode != null && oscillatorNode != null && oscillatorDetuneNode != null) {
                             audioContext!!.stopTone(
