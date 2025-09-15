@@ -9,6 +9,9 @@ object Screen {
     )
 
     @Serializable
+    data object Corridor
+
+    @Serializable
     data object AudioPlayground
 
     @Serializable

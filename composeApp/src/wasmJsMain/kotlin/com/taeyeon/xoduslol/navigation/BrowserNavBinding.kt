@@ -24,6 +24,9 @@ fun NavController.navigationFromInitHash() {
                 )
             )
         }
+        "corridor" -> {
+            navigate(Screen.Corridor)
+        }
         "audioPlayground" -> {
             navigate(Screen.AudioPlayground)
         }
@@ -66,6 +69,9 @@ suspend fun NavController.bindBrowserHash() {
                     "#home" + buildQuery(
                         listQuery = listOf("partyMode".takeIf { args.partyMode })
                     )
+                }
+                route.startsWith(Screen.Corridor.serializer().descriptor.serialName) -> {
+                    "#corridor"
                 }
                 route.startsWith(Screen.AudioPlayground.serializer().descriptor.serialName) -> {
                     "#audioPlayground"

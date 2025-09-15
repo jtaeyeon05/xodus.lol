@@ -107,7 +107,7 @@ fun HomeScreen(
             Spacer(Modifier.height(24.dp))
 
             Button(
-                onClick = { navController.navigate(Screen.AudioPlayground) },
+                onClick = { navController.navigate(Screen.Corridor) },
                 shape = RectangleShape,
                 contentPadding = PaddingValues(
                     vertical = 16.dp,

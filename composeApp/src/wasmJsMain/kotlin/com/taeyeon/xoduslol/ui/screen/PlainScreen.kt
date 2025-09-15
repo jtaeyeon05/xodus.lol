@@ -73,7 +73,7 @@ fun PlainScreen(
                     if (message != null) {
                         for (i in message!!.indices) {
                             textContent += message!![i]
-                            delay(100)
+                            delay(50)
                         }
                     }
                 }
@@ -135,7 +135,7 @@ fun PlainScreen(
                 )
                 .size(100.dp)
                 .background(MaterialTheme.colorScheme.secondaryContainer)
-                .clickable { navController.navigate(Screen.Home()) }
+                .clickable { navController.popBackStack() }
         )
     }
 }

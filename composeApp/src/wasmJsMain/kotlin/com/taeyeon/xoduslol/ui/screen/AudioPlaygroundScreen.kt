@@ -235,7 +235,7 @@ fun AudioPlaygroundScreen(
                 modifier = Modifier
                     .padding(12.dp)
                     .align(Alignment.TopStart),
-                onClick = { navController.popBackStack<Screen.Home>(inclusive = false) },
+                onClick = { navController.popBackStack() },
                 resource = Res.drawable.SquaredLeft,
                 contentDescription = "뒤로",
             )
