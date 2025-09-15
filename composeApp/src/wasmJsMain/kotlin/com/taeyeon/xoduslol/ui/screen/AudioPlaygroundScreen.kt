@@ -182,7 +182,7 @@ fun AudioPlaygroundScreen(
                             onDoubleTap = {
                                 knobXRatio = 0.5f
                                 knobYRatio = 0.5f
-                                knobSizeRatio = 0f
+                                knobSizeRatio = 0.5f
                             }
                         )
                     }
@@ -254,10 +254,10 @@ fun AudioPlaygroundScreen(
                     "AudioPlayground에 온 것을 환영해",
                     "이곳에서는 WebAudio를 통해 놀 수 있어",
                     "노브를 좌우로 조절해 Gain을,",
-                    "노브를 상하로 조절해 Frequency를,",
-                    "노브의 크기를 조절해 Detune을 조절할 수 있어",
-                    "이 값들을 초기화시키고 싶으면 화면을 더블탭하면 돼",
-                    "또한, 아래 버튼들을 통해 파형, ??를 조절할 수 있어",
+                    "상하로 조절해 Frequency를,",
+                    "크기를 조절해 Detune을 조절할 수 있어",
+                    "노브를 더블탭해 이 값들을 초기화시킬 수 있어",
+                    "또한, 아래 버튼들을 통해 파형을 조절할 수 있어",
                     "그러면, 이를 이용해 여러 소리를 내봐!",
                 )
                 var message by rememberSaveable { mutableStateOf<String?>(null) }
@@ -320,10 +320,6 @@ fun AudioPlaygroundScreen(
                             else waveFormSelector++
                         },
                         text = waveForm
-                    )
-                    SquaredIconButton(
-                        onClick = { /* TODO */ },
-                        text = "ABC"
                     )
                 }
             }
