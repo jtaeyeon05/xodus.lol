@@ -124,8 +124,8 @@ fun SquaredIconButton(
                     lineHeight = 1.0f.em,
                 ),
                 autoSize = TextAutoSize.StepBased(
-                    minFontSize = 2.sp,
-                    stepSize = 2.sp
+                    minFontSize = 2f.sp,
+                    stepSize = 0.1f.sp
                 ),
             )
         }

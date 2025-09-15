@@ -24,8 +24,8 @@ fun NavController.navigationFromInitHash() {
                 )
             )
         }
-        "main" -> {
-            navigate(Screen.Main)
+        "audioPlayground" -> {
+            navigate(Screen.AudioPlayground)
         }
         "move" -> {
             val target = params.get("target")?.let { decodeURIComponent(it) }
@@ -67,8 +67,8 @@ suspend fun NavController.bindBrowserHash() {
                         listQuery = listOf("partyMode".takeIf { args.partyMode })
                     )
                 }
-                route.startsWith(Screen.Main.serializer().descriptor.serialName) -> {
-                    "#main"
+                route.startsWith(Screen.AudioPlayground.serializer().descriptor.serialName) -> {
+                    "#audioPlayground"
                 }
                 route.startsWith(Screen.Move.serializer().descriptor.serialName) -> {
                     val args = entry.toRoute<Screen.Move>()

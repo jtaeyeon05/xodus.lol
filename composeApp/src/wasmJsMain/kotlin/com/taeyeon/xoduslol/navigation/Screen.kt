@@ -9,7 +9,7 @@ object Screen {
     )
 
     @Serializable
-    data object Main
+    data object AudioPlayground
 
     @Serializable
     data class Move(

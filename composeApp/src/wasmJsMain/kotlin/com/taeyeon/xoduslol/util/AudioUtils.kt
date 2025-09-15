@@ -3,6 +3,9 @@ package com.taeyeon.xoduslol.util
 import kotlin.js.Promise
 
 
+val OscillatorTypeList = listOf("sine", "square", "sawtooth", "triangle")
+
+
 external interface AudioNode {
     fun connect(destination: AudioNode)
 }
@@ -17,6 +20,7 @@ external class GainNode: AudioNode {
 external class OscillatorNode: AudioNode {
     var type: String
     val frequency: AudioParam
+    val detune: AudioParam
     override fun connect(destination: AudioNode)
     fun start(whenSec: Double = definedExternally)
     fun stop(whenSec: Double = definedExternally)
@@ -42,9 +46,11 @@ external fun createAudioContext(): AudioContext
 fun AudioContext.playTone(
     frequency: Double,
     gain: Double,
+    detune: Double,
     waveForm: String,
     setGainNode: (GainNode?) -> Unit,
     setOscillatorNode: (OscillatorNode?) -> Unit,
+    setOscillatorDetuneNode: (OscillatorNode?) -> Unit,
 ) {
     resume()
 
@@ -57,33 +63,47 @@ fun AudioContext.playTone(
         it.frequency.setValueAtTime(frequency, currentTime)
         it.connect(gainNode)
     }
+    val oscillatorDetuneNode = createOscillator().also {
+        it.type = waveForm
+        it.frequency.setValueAtTime(frequency, currentTime)
+        it.detune.setValueAtTime(detune, currentTime)
+        it.connect(gainNode)
+    }
 
     gainNode.gain.linearRampToValueAtTime(gain, currentTime + 0.02)
     oscillatorNode.start()
+    oscillatorDetuneNode.start()
 
     setGainNode(gainNode)
     setOscillatorNode(oscillatorNode)
+    setOscillatorDetuneNode(oscillatorDetuneNode)
 }
 
 fun AudioContext.stopTone(
     gainNode: GainNode,
     oscillatorNode: OscillatorNode,
+    oscillatorDetuneNode: OscillatorNode,
     setGainNode: (GainNode?) -> Unit,
     setOscillatorNode: (OscillatorNode?) -> Unit,
+    setOscillatorDetuneNode: (OscillatorNode?) -> Unit,
 ) {
     gainNode.gain.linearRampToValueAtTime(0.0, currentTime + 0.02)
     oscillatorNode.stop(currentTime + 0.03)
+    oscillatorDetuneNode.stop(currentTime + 0.03)
 
     setGainNode(null)
     setOscillatorNode(null)
+    setOscillatorDetuneNode(null)
 }
 
 fun AudioContext.updateFrequency(
     newFrequency: Double,
     oscillatorNode: OscillatorNode,
+    oscillatorDetuneNode: OscillatorNode,
 ) {
     val clamped = newFrequency.coerceIn(20.0, 20000.0)
     oscillatorNode.frequency.linearRampToValueAtTime(clamped, currentTime + 0.02)
+    oscillatorDetuneNode.frequency.linearRampToValueAtTime(clamped, currentTime + 0.02)
 }
 
 fun AudioContext.updateGain(
@@ -94,9 +114,18 @@ fun AudioContext.updateGain(
     gainNode.gain.linearRampToValueAtTime(clamped, currentTime + 0.02)
 }
 
-fun AudioContext.updateWaveform(
+fun AudioContext.updateDetune(
+    newDetune: Double,
+    oscillatorDetuneNode: OscillatorNode,
+) {
+    oscillatorDetuneNode.detune.linearRampToValueAtTime(newDetune, currentTime + 0.02)
+}
+
+fun updateWaveform(
     newWaveForm: String,
     oscillatorNode: OscillatorNode,
+    oscillatorDetuneNode: OscillatorNode,
 ) {
     oscillatorNode.type = newWaveForm
+    oscillatorDetuneNode.type = newWaveForm
 }

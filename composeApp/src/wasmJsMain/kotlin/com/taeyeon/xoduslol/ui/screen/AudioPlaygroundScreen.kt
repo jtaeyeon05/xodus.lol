@@ -2,9 +2,13 @@ package com.taeyeon.xoduslol.ui.screen
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -23,8 +27,11 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -46,12 +53,14 @@ import kotlin.math.roundToInt
 
 private const val MIN_FREQUENCY = 50f
 private const val MAX_FREQUENCY = 2000f
+private const val MIN_DETUNE = -50f
+private const val MAX_DETUNE = +50f
 private val KNOB_MIN_SIZE = 100.dp
 private val KNOB_MAX_SIZE = 200.dp
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun MainScreen(
+fun AudioPlaygroundScreen(
     navController: NavController = rememberNavController()
 ) {
     Column(
@@ -63,7 +72,8 @@ fun MainScreen(
 
         var knobXRatio by rememberSaveable { mutableStateOf(0.5f) }
         var knobYRatio by rememberSaveable { mutableStateOf(0.5f) }
-        var knobSizeRatio by rememberSaveable { mutableStateOf(0.5f) } // TODO
+        var knobSizeRatio by rememberSaveable { mutableStateOf(0.5f) }
+        var waveFormSelector by rememberSaveable { mutableStateOf(0) }
 
         var canvasSize by remember { mutableStateOf(IntSize.Zero) }
         val knobSize by remember { derivedStateOf { KNOB_MIN_SIZE + (KNOB_MAX_SIZE - KNOB_MIN_SIZE) * knobSizeRatio } }
@@ -72,20 +82,24 @@ fun MainScreen(
         val audioContext = rememberSaveable { createAudioContext() }
         var gainNode by rememberSaveable { mutableStateOf<GainNode?>(null) }
         var oscillatorNode by rememberSaveable { mutableStateOf<OscillatorNode?>(null) }
+        var oscillatorDetuneNode by rememberSaveable { mutableStateOf<OscillatorNode?>(null) }
 
         val gain by rememberSaveable { derivedStateOf { knobXRatio.toDouble() } }
         val frequency by rememberSaveable { derivedStateOf { (MIN_FREQUENCY * (MAX_FREQUENCY / MIN_FREQUENCY).pow(1f - knobYRatio)).toDouble() } }
-        var waveForm by rememberSaveable { mutableStateOf("sine") } // TODO
+        val detune by rememberSaveable { derivedStateOf { (MIN_DETUNE + (MAX_DETUNE - MIN_DETUNE) * knobSizeRatio).toDouble() } }
+        val waveForm by rememberSaveable { derivedStateOf { OscillatorTypeList[waveFormSelector % OscillatorTypeList.size] } }
         var isPlaying by rememberSaveable { mutableStateOf(false) }
 
         DisposableEffect(true) {
             onDispose {
-                if (isPlaying && gainNode != null && oscillatorNode != null) {
+                if (isPlaying && gainNode != null && oscillatorNode != null && oscillatorDetuneNode != null) {
                     audioContext.stopTone(
                         gainNode = gainNode!!,
                         oscillatorNode = oscillatorNode!!,
+                        oscillatorDetuneNode = oscillatorDetuneNode!!,
                         setGainNode = { gainNode = it },
-                        setOscillatorNode = { oscillatorNode = it }
+                        setOscillatorNode = { oscillatorNode = it },
+                        setOscillatorDetuneNode = { oscillatorDetuneNode = it },
                     )
                 }
             }
@@ -100,18 +114,29 @@ fun MainScreen(
             }
         }
         LaunchedEffect(frequency) {
-            if (oscillatorNode != null && isPlaying) {
+            if (oscillatorNode != null && oscillatorDetuneNode != null && isPlaying) {
                 audioContext.updateFrequency(
                     newFrequency = frequency,
-                    oscillatorNode = oscillatorNode!!
+                    oscillatorNode = oscillatorNode!!,
+                    oscillatorDetuneNode = oscillatorDetuneNode!!,
+                )
+            }
+        }
+        LaunchedEffect(detune) {
+            print(detune)
+            if (oscillatorDetuneNode != null && isPlaying) {
+                audioContext.updateDetune(
+                    newDetune = detune,
+                    oscillatorDetuneNode = oscillatorDetuneNode!!
                 )
             }
         }
         LaunchedEffect(waveForm) {
             if (oscillatorNode != null && isPlaying) {
-                audioContext.updateWaveform(
+                updateWaveform(
                     newWaveForm = waveForm,
-                    oscillatorNode = oscillatorNode!!
+                    oscillatorNode = oscillatorNode!!,
+                    oscillatorDetuneNode = oscillatorDetuneNode!!,
                 )
             }
         }
@@ -149,8 +174,17 @@ fun MainScreen(
                         }
                     )
                     .onPointerEvent(PointerEventType.Scroll) { pointerEvent ->
-                        knobSizeRatio -= pointerEvent.changes.first().scrollDelta.y / 500f
+                        knobSizeRatio -= pointerEvent.changes.first().scrollDelta.y / 1_000f
                         knobSizeRatio = knobSizeRatio.coerceIn(0f, 1f)
+                    }
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onDoubleTap = {
+                                knobXRatio = 0.5f
+                                knobYRatio = 0.5f
+                                knobSizeRatio = 0f
+                            }
+                        )
                     }
             ) {
                 val widthPx = canvasSize.width
@@ -207,28 +241,89 @@ fun MainScreen(
 
             Row(
                 modifier = Modifier
-                    .padding(12.dp)
+                    .padding(
+                        start = 12.dp + 48.dp + 12.dp,
+                        top = 12.dp,
+                        end = 12.dp
+                    )
                     .align(Alignment.TopEnd),
                 verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // TODO: Message
+                val messageList = listOf(
+                    "AudioPlayground에 온 것을 환영해",
+                    "이곳에서는 WebAudio를 통해 놀 수 있어",
+                    "노브를 좌우로 조절해 Gain을,",
+                    "노브를 상하로 조절해 Frequency를,",
+                    "노브의 크기를 조절해 Detune을 조절할 수 있어",
+                    "이 값들을 초기화시키고 싶으면 화면을 더블탭하면 돼",
+                    "또한, 아래 버튼들을 통해 파형, ??를 조절할 수 있어",
+                    "그러면, 이를 이용해 여러 소리를 내봐!",
+                )
+                var message by rememberSaveable { mutableStateOf<String?>(null) }
+                var messageNotifier by rememberSaveable { mutableStateOf(0) }
+
+                LaunchedEffect(messageNotifier) {
+                    for (i in messageList.indices) {
+                        message = messageList[i]
+                        delay(2500)
+                    }
+                    message = null
+                }
+
+                if (message != null) {
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        Text(
+                            text = "버튼버튼",
+                            color = LocalContentColor.current.copy(alpha = 0.8f),
+                            fontSize = 12.sp,
+                        )
+                        Surface(
+                            shape = RoundedCornerShape(
+                                topStart = 12.dp,
+                                topEnd = 0.dp,
+                                bottomStart = 12.dp,
+                                bottomEnd = 12.dp,
+                            ),
+                            color = MaterialTheme.colorScheme.inverseSurface,
+                            contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                        ) {
+                            Text(
+                                modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp),
+                                text = message!!,
+                                style = LocalTextStyle.current.copy(
+                                    fontSize = 12.sp,
+                                    textAlign = TextAlign.End,
+                                    lineBreak = LineBreak.Paragraph
+                                )
+                            )
+                        }
+                    }
+                }
+
                 Column(
+                    modifier = Modifier.requiredWidth(48.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     horizontalAlignment = Alignment.End
                 ) {
                     SquaredIconButton(
-                        onClick = { /* TODO */ },
+                        onClick = { messageNotifier++ },
                         resource = Res.drawable.SquaredFace,
                         contentDescription = "버튼버튼",
                     )
                     SquaredIconButton(
-                        onClick = { /* TODO */ },
-                        text = "안녕"
+                        onClick = {
+                            if (waveFormSelector + 1 == OscillatorTypeList.size) waveFormSelector = 0
+                            else waveFormSelector++
+                        },
+                        text = waveForm
                     )
                     SquaredIconButton(
                         onClick = { /* TODO */ },
-                        text = "cosine"
+                        text = "ABC"
                     )
                 }
             }
@@ -243,17 +338,21 @@ fun MainScreen(
                         audioContext.playTone(
                             frequency = frequency,
                             gain = gain,
+                            detune = detune,
                             waveForm = waveForm,
                             setGainNode = { gainNode = it },
                             setOscillatorNode = { oscillatorNode = it },
+                            setOscillatorDetuneNode = { oscillatorDetuneNode = it },
                         )
                     } else {
-                        if (gainNode != null && oscillatorNode != null) {
+                        if (gainNode != null && oscillatorNode != null && oscillatorDetuneNode != null) {
                             audioContext.stopTone(
                                 gainNode = gainNode!!,
                                 oscillatorNode = oscillatorNode!!,
+                                oscillatorDetuneNode = oscillatorDetuneNode!!,
                                 setGainNode = { gainNode = it },
                                 setOscillatorNode = { oscillatorNode = it },
+                                setOscillatorDetuneNode = { oscillatorDetuneNode = it },
                             )
                         }
                     }

@@ -1,6 +1,5 @@
 package com.taeyeon.xoduslol.ui.screen
 
-import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.gestures.draggable2D
 import androidx.compose.foundation.gestures.rememberDraggable2DState
@@ -24,6 +23,8 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -106,7 +107,7 @@ fun StartScreen(
             Spacer(Modifier.height(24.dp))
 
             Button(
-                onClick = { navController.navigate(Screen.Main) },
+                onClick = { navController.navigate(Screen.AudioPlayground) },
                 shape = RectangleShape,
                 contentPadding = PaddingValues(
                     vertical = 16.dp,
@@ -173,23 +174,6 @@ fun StartScreen(
             contentDescription = "파티!",
         )
 
-        val messageList = listOf(
-            "안녕, 내 이름은 버튼버튼이야",
-            "날 절-대 길게 클릭하거나 옮기지 마!",
-            "날 길게 클릭하면 다른 사이트로 이동할거야",
-            "대신 아래 버튼을 클릭해",
-            "그러면 나는 이만 가볼게",
-        )
-        var message by rememberSaveable { mutableStateOf<String?>(null) }
-        var messageNotifier by rememberSaveable { mutableStateOf(0) }
-        LaunchedEffect(messageNotifier) {
-            for (i in messageList.indices) {
-                message = messageList[i]
-                delay(2500)
-            }
-            message = null
-        }
-
         var buttonButtonX by remember { mutableStateOf(0f) }
         var buttonButtonY by remember { mutableStateOf(0f) }
 
@@ -201,40 +185,53 @@ fun StartScreen(
             verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            AnimatedContent(
-                targetState = message,
-                transitionSpec = {
-                    fadeIn(animationSpec = tween(durationMillis = 250, delayMillis = 50))
-                        .togetherWith(fadeOut(animationSpec = tween(durationMillis = 250)))
-                        .using(SizeTransform(clip = false))
-                },
-                contentAlignment = Alignment.TopEnd,
-            ) { targetMessage ->
-                if (targetMessage != null) {
-                    Column(
-                        horizontalAlignment = Alignment.End
+            val messageList = listOf(
+                "안녕, 내 이름은 버튼버튼이야",
+                "날 절-대 길게 클릭하거나 옮기지 마!",
+                "날 길게 클릭하면 다른 사이트로 이동할거야",
+                "대신 아래 버튼을 클릭해",
+                "그러면 나는 이만 가볼게",
+            )
+            var message by rememberSaveable { mutableStateOf<String?>(null) }
+            var messageNotifier by rememberSaveable { mutableStateOf(0) }
+
+            LaunchedEffect(messageNotifier) {
+                for (i in messageList.indices) {
+                    message = messageList[i]
+                    delay(2500)
+                }
+                message = null
+            }
+
+            if (message != null) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Text(
+                        text = "버튼버튼",
+                        color = LocalContentColor.current.copy(alpha = 0.8f),
+                        fontSize = 12.sp,
+                    )
+                    Surface(
+                        shape = RoundedCornerShape(
+                            topStart = 12.dp,
+                            topEnd = 0.dp,
+                            bottomStart = 12.dp,
+                            bottomEnd = 12.dp,
+                        ),
+                        color = MaterialTheme.colorScheme.inverseSurface,
+                        contentColor = MaterialTheme.colorScheme.inverseOnSurface,
                     ) {
                         Text(
-                            text = "버튼버튼",
-                            color = LocalContentColor.current.copy(alpha = 0.8f),
-                            fontSize = 12.sp,
-                        )
-                        Surface(
-                            shape = RoundedCornerShape(
-                                topStart = 12.dp,
-                                topEnd = 0.dp,
-                                bottomStart = 12.dp,
-                                bottomEnd = 12.dp,
-                            ),
-                            color = MaterialTheme.colorScheme.inverseSurface,
-                            contentColor = MaterialTheme.colorScheme.inverseOnSurface,
-                        ) {
-                            Text(
-                                modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp),
-                                text = targetMessage,
+                            modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp),
+                            text = message!!,
+                            style = LocalTextStyle.current.copy(
                                 fontSize = 12.sp,
+                                textAlign = TextAlign.End,
+                                lineBreak = LineBreak.Paragraph
                             )
-                        }
+                        )
                     }
                 }
             }
