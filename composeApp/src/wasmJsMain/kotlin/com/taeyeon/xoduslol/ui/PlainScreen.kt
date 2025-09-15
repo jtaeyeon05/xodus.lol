@@ -137,7 +137,7 @@ fun PlainScreen(
                 .background(MaterialTheme.colorScheme.secondaryContainer)
                 .clickable(
                     onClick = {
-                        navController.popBackStack()
+                        navController.navigate(Screen.Start())
                     }
                 )
         )

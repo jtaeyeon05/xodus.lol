@@ -53,9 +53,12 @@ import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.imageResource
 import xoduslol.composeapp.generated.resources.Res
 import xoduslol.composeapp.generated.resources.SquaredCircle
+import kotlin.math.pow
 import kotlin.math.roundToInt
 
 
+private const val MIN_FREQUENCY = 50f
+private const val MAX_FREQUENCY = 2000f
 private val KNOB_MIN_SIZE = 100.dp
 private val KNOB_MAX_SIZE = 200.dp
 
@@ -83,8 +86,8 @@ fun MainScreen(
         var gainNode by rememberSaveable { mutableStateOf<GainNode?>(null) }
         var oscillatorNode by rememberSaveable { mutableStateOf<OscillatorNode?>(null) }
 
-        val gain by rememberSaveable { derivedStateOf { knobXRatio.toDouble().coerceIn(0.0, 1.0) } }
-        val frequency by rememberSaveable { derivedStateOf { ((1f - knobYRatio) * 2000f + 50f).toDouble() } }
+        val gain by rememberSaveable { derivedStateOf { knobXRatio.toDouble() } }
+        val frequency by rememberSaveable { derivedStateOf { (MIN_FREQUENCY * (MAX_FREQUENCY / MIN_FREQUENCY).pow(1f - knobYRatio)).toDouble() } }
         var waveForm by rememberSaveable { mutableStateOf("sine") } // TODO
         var isPlaying by rememberSaveable { mutableStateOf(false) }
 

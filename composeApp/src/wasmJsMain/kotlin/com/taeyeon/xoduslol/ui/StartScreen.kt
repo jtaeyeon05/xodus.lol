@@ -11,11 +11,9 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.draggable2D
 import androidx.compose.foundation.gestures.rememberDraggable2DState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.EmojiEmotions
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.twotone.Lightbulb
 import androidx.compose.material3.*
@@ -23,11 +21,12 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.SpanStyle
@@ -49,6 +48,9 @@ import io.github.vinceglb.confettikit.core.Position
 import io.github.vinceglb.confettikit.core.Spread
 import io.github.vinceglb.confettikit.core.emitter.Emitter
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.imageResource
+import xoduslol.composeapp.generated.resources.Res
+import xoduslol.composeapp.generated.resources.SquaredFace
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
 
@@ -167,7 +169,7 @@ fun StartScreen(
             }
         }
 
-        FilledIconButton(
+        Surface(
             modifier = Modifier
                 .padding(12.dp)
                 .requiredSize(48.dp)
@@ -176,9 +178,13 @@ fun StartScreen(
                 partyMode = !partyMode
                 replaceHash(if (partyMode) "#start?partyMode" else "#start")
             },
+            color = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
         ) {
             Icon(
-                modifier = Modifier.padding(12.dp),
+                modifier = Modifier
+                    .padding(12.dp)
+                    .size(24.dp),
                 imageVector = if (partyMode) Icons.Filled.Lightbulb else Icons.TwoTone.Lightbulb,
                 contentDescription = "파티!",
             )
@@ -252,7 +258,6 @@ fun StartScreen(
             Surface(
                 modifier = Modifier
                     .requiredSize(48.dp)
-                    .clip(CircleShape)
                     .combinedClickable(
                         onClick = {
                             messageNotifier++
@@ -267,7 +272,6 @@ fun StartScreen(
                             buttonButtonY += delta.y
                         }
                     ),
-                shape = CircleShape,
                 color = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
             ) {
@@ -275,7 +279,10 @@ fun StartScreen(
                     modifier = Modifier
                         .padding(12.dp)
                         .size(24.dp),
-                    imageVector = Icons.Filled.EmojiEmotions,
+                    painter = BitmapPainter(
+                        image = imageResource(Res.drawable.SquaredFace),
+                        filterQuality = FilterQuality.None,
+                    ),
                     contentDescription = "버튼버튼",
                 )
             }
