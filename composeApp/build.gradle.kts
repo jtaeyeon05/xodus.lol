@@ -1,4 +1,6 @@
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -6,6 +8,50 @@ plugins {
     alias(libs.plugins.composeCompiler)
     kotlin("plugin.serialization") version "2.2.20"
 }
+
+val version = "1.0.1"
+val buildInfoPackage = "com.taeyeon.xoduslol.buildinfo"
+val buildInfoDir = layout.buildDirectory.dir("generated/sources/buildInfo/kotlin")
+
+@CacheableTask
+abstract class GenerateBuildInfoTask : DefaultTask() {
+    @get:Input
+    abstract val versionProp: Property<String>
+
+    @get:Input
+    abstract val pkgProp: Property<String>
+
+    @get:OutputDirectory
+    abstract val outDir: DirectoryProperty
+
+    @TaskAction
+    fun generate() {
+        val buildNumber = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
+        val out = outDir.get().asFile
+        val pkgPath = pkgProp.get().replace('.', '/')
+        val file = File(out, "$pkgPath/BuildInfo.kt")
+        file.parentFile.mkdirs()
+        file.writeText(
+            """
+            package ${pkgProp.get()}
+            
+            object BuildInfo {
+                const val VERSION = "${versionProp.get()}"
+                const val BUILD_NUMBER  = "$buildNumber"
+            }
+            """.trimIndent()
+        )
+        println("Generated BuildInfo.kt at: ${file.absolutePath}")
+    }
+}
+
+val generateBuildInfo by tasks.register<GenerateBuildInfoTask>("generateBuildInfo") {
+    versionProp.set(version)
+    pkgProp.set(buildInfoPackage)
+    outDir.set(buildInfoDir)
+}
+
+kotlin.sourceSets.getByName("commonMain").kotlin.srcDir(buildInfoDir)
 
 kotlin {
     @OptIn(ExperimentalWasmDsl::class)
@@ -33,6 +79,10 @@ kotlin {
             implementation(libs.kotlin.test)
         }
     }
+
+    targets.all {
+        compilations.all {
+            compileTaskProvider.configure { dependsOn(generateBuildInfo) }
+        }
+    }
 }
-
-

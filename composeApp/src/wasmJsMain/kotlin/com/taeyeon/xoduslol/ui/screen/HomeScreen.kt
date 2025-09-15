@@ -1,10 +1,13 @@
 package com.taeyeon.xoduslol.ui.screen
 
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable2D
 import androidx.compose.foundation.gestures.rememberDraggable2DState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lightbulb
@@ -19,6 +22,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -29,9 +33,11 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.taeyeon.xoduslol.buildinfo.BuildInfo
 import com.taeyeon.xoduslol.navigation.Screen
 import com.taeyeon.xoduslol.ui.SquaredIconButton
 import com.taeyeon.xoduslol.util.replaceHash
@@ -158,6 +164,36 @@ fun HomeScreen(
                     text = "email@xodus.lol",
                     color = LocalContentColor.current.copy(alpha = 0.5f),
                     fontSize = 18.sp,
+                )
+            }
+        }
+
+        var identifierBoxTaped by rememberSaveable { mutableStateOf(false) }
+
+        Box(
+            modifier = Modifier
+                .padding(12.dp)
+                .align(Alignment.TopStart)
+                .size(48.dp)
+                .pointerInput(Unit) {
+                    detectTapGestures {
+                        identifierBoxTaped = !identifierBoxTaped
+                    }
+                },
+            contentAlignment = Alignment.Center,
+        ) {
+
+            if (identifierBoxTaped) {
+                BasicText(
+                    text = "${BuildInfo.VERSION}\n${BuildInfo.BUILD_NUMBER}",
+                    style = LocalTextStyle.current.copy(
+                        textAlign = TextAlign.Center,
+                        lineHeight = 1.2f.em,
+                    ),
+                    autoSize = TextAutoSize.StepBased(
+                        minFontSize = 2.sp,
+                        maxFontSize = 12.sp,
+                    )
                 )
             }
         }
