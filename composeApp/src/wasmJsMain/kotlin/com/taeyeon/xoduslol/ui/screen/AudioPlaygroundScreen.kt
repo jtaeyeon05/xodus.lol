@@ -79,7 +79,7 @@ fun AudioPlaygroundScreen(
         val knobSize by remember { derivedStateOf { KNOB_MIN_SIZE + (KNOB_MAX_SIZE - KNOB_MIN_SIZE) * knobSizeRatio } }
         var playButtonText by rememberSaveable { mutableStateOf("PLAY") }
 
-        val audioContext = rememberSaveable { createAudioContext() }
+        var audioContext by rememberSaveable { mutableStateOf<AudioContext?>(null) }
         var gainNode by rememberSaveable { mutableStateOf<GainNode?>(null) }
         var oscillatorNode by rememberSaveable { mutableStateOf<OscillatorNode?>(null) }
         var oscillatorDetuneNode by rememberSaveable { mutableStateOf<OscillatorNode?>(null) }
@@ -92,8 +92,8 @@ fun AudioPlaygroundScreen(
 
         DisposableEffect(true) {
             onDispose {
-                if (isPlaying && gainNode != null && oscillatorNode != null && oscillatorDetuneNode != null) {
-                    audioContext.stopTone(
+                if (isPlaying && audioContext != null && gainNode != null && oscillatorNode != null && oscillatorDetuneNode != null) {
+                    audioContext!!.stopTone(
                         gainNode = gainNode!!,
                         oscillatorNode = oscillatorNode!!,
                         oscillatorDetuneNode = oscillatorDetuneNode!!,
@@ -106,16 +106,16 @@ fun AudioPlaygroundScreen(
         }
 
         LaunchedEffect(gain) {
-            if (gainNode != null && isPlaying) {
-                audioContext.updateGain(
+            if (audioContext != null && gainNode != null && isPlaying) {
+                audioContext!!.updateGain(
                     newGain = gain,
                     gainNode = gainNode!!
                 )
             }
         }
         LaunchedEffect(frequency) {
-            if (oscillatorNode != null && oscillatorDetuneNode != null && isPlaying) {
-                audioContext.updateFrequency(
+            if (audioContext != null && oscillatorNode != null && oscillatorDetuneNode != null && isPlaying) {
+                audioContext!!.updateFrequency(
                     newFrequency = frequency,
                     oscillatorNode = oscillatorNode!!,
                     oscillatorDetuneNode = oscillatorDetuneNode!!,
@@ -124,8 +124,8 @@ fun AudioPlaygroundScreen(
         }
         LaunchedEffect(detune) {
             print(detune)
-            if (oscillatorDetuneNode != null && isPlaying) {
-                audioContext.updateDetune(
+            if (oscillatorDetuneNode != null && audioContext != null && isPlaying) {
+                audioContext!!.updateDetune(
                     newDetune = detune,
                     oscillatorDetuneNode = oscillatorDetuneNode!!
                 )
@@ -256,8 +256,8 @@ fun AudioPlaygroundScreen(
                     "노브를 좌우로 조절해 Gain을,",
                     "상하로 조절해 Frequency를,",
                     "크기를 조절해 Detune을 조절할 수 있어",
-                    "노브를 더블탭해 이 값들을 초기화시킬 수 있어",
-                    "또한, 아래 버튼들을 통해 파형을 조절할 수 있어",
+                    "그리고, 노브를 더블탭해 Gain, Frequency, Detune을 초기화시킬 수 있어",
+                    "또한, 버튼을 통해 파형을 바꿀 수 수 있어",
                     "그러면, 이를 이용해 여러 소리를 내봐!",
                 )
                 var message by rememberSaveable { mutableStateOf<String?>(null) }
@@ -331,7 +331,8 @@ fun AudioPlaygroundScreen(
                 .clickable {
                     isPlaying = !isPlaying
                     if (isPlaying) {
-                        audioContext.playTone(
+                        if (audioContext == null) audioContext = createAudioContext()
+                        audioContext!!.playTone(
                             frequency = frequency,
                             gain = gain,
                             detune = detune,
@@ -341,8 +342,8 @@ fun AudioPlaygroundScreen(
                             setOscillatorDetuneNode = { oscillatorDetuneNode = it },
                         )
                     } else {
-                        if (gainNode != null && oscillatorNode != null && oscillatorDetuneNode != null) {
-                            audioContext.stopTone(
+                        if (audioContext != null && gainNode != null && oscillatorNode != null && oscillatorDetuneNode != null) {
+                            audioContext!!.stopTone(
                                 gainNode = gainNode!!,
                                 oscillatorNode = oscillatorNode!!,
                                 oscillatorDetuneNode = oscillatorDetuneNode!!,
