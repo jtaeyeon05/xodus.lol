@@ -1,5 +1,6 @@
 package com.taeyeon.xoduslol.util
 
+import kotlinx.coroutines.await
 import kotlin.js.Promise
 
 
@@ -32,6 +33,7 @@ external class AudioParam {
 }
 
 external class AudioContext {
+    val state: String?
     val currentTime: Double
     val destination: AudioDestinationNode
     fun resume(): Promise<JsAny?>
@@ -43,7 +45,15 @@ external class AudioContext {
 @JsFun("() => window.AudioContext ? new window.AudioContext() : new window.webkitAudioContext()")
 external fun createAudioContext(): AudioContext
 
-fun AudioContext.playTone(
+suspend fun AudioContext.ensureUnlocked() {
+    if (state != "running") {
+        try {
+            resume().await()
+        } catch (_: Exception) {}
+    }
+}
+
+suspend fun AudioContext.playTone(
     frequency: Double,
     gain: Double,
     detune: Double,
@@ -52,7 +62,7 @@ fun AudioContext.playTone(
     setOscillatorNode: (OscillatorNode?) -> Unit,
     setOscillatorDetuneNode: (OscillatorNode?) -> Unit,
 ) {
-    resume()
+    ensureUnlocked()
 
     val gainNode = createGain().also {
         it.gain.setValueAtTime(0.0, currentTime)

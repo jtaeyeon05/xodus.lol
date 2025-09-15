@@ -42,6 +42,7 @@ import com.taeyeon.xoduslol.navigation.Screen
 import com.taeyeon.xoduslol.ui.SquaredIconButton
 import com.taeyeon.xoduslol.util.*
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.imageResource
 import xoduslol.composeapp.generated.resources.Res
 import xoduslol.composeapp.generated.resources.SquaredCircle
@@ -68,6 +69,7 @@ fun AudioPlaygroundScreen(
     ) {
         val density = LocalDensity.current
         val colorScheme = MaterialTheme.colorScheme
+        val coroutineScope = rememberCoroutineScope()
         val squaredCircleImage = imageResource(Res.drawable.SquaredCircle)
 
         var knobXRatio by rememberSaveable { mutableStateOf(0.5f) }
@@ -79,21 +81,22 @@ fun AudioPlaygroundScreen(
         val knobSize by remember { derivedStateOf { KNOB_MIN_SIZE + (KNOB_MAX_SIZE - KNOB_MIN_SIZE) * knobSizeRatio } }
         var playButtonText by rememberSaveable { mutableStateOf("PLAY") }
 
-        var audioContext by rememberSaveable { mutableStateOf<AudioContext?>(null) }
-        var gainNode by rememberSaveable { mutableStateOf<GainNode?>(null) }
-        var oscillatorNode by rememberSaveable { mutableStateOf<OscillatorNode?>(null) }
-        var oscillatorDetuneNode by rememberSaveable { mutableStateOf<OscillatorNode?>(null) }
+        val audioContext = remember { createAudioContext() }
+        var gainNode by remember { mutableStateOf<GainNode?>(null) }
+        var oscillatorNode by remember { mutableStateOf<OscillatorNode?>(null) }
+        var oscillatorDetuneNode by remember { mutableStateOf<OscillatorNode?>(null) }
 
-        val gain by rememberSaveable { derivedStateOf { knobXRatio.toDouble() } }
-        val frequency by rememberSaveable { derivedStateOf { (MIN_FREQUENCY * (MAX_FREQUENCY / MIN_FREQUENCY).pow(1f - knobYRatio)).toDouble() } }
-        val detune by rememberSaveable { derivedStateOf { (MIN_DETUNE + (MAX_DETUNE - MIN_DETUNE) * knobSizeRatio).toDouble() } }
-        val waveForm by rememberSaveable { derivedStateOf { OscillatorTypeList[waveFormSelector % OscillatorTypeList.size] } }
-        var isPlaying by rememberSaveable { mutableStateOf(false) }
+        var isPlaying by remember { mutableStateOf(false) }
+        val gain by remember { derivedStateOf { knobXRatio.toDouble() } }
+        val frequency by remember { derivedStateOf { (MIN_FREQUENCY * (MAX_FREQUENCY / MIN_FREQUENCY).pow(1f - knobYRatio)).toDouble() } }
+        val detune by remember { derivedStateOf { (MIN_DETUNE + (MAX_DETUNE - MIN_DETUNE) * knobSizeRatio).toDouble() } }
+        val waveForm by remember { derivedStateOf { OscillatorTypeList[waveFormSelector % OscillatorTypeList.size] } }
 
         DisposableEffect(true) {
             onDispose {
-                if (isPlaying && audioContext != null && gainNode != null && oscillatorNode != null && oscillatorDetuneNode != null) {
-                    audioContext!!.stopTone(
+                if (isPlaying && gainNode != null && oscillatorNode != null && oscillatorDetuneNode != null) {
+                    isPlaying = false
+                    audioContext.stopTone(
                         gainNode = gainNode!!,
                         oscillatorNode = oscillatorNode!!,
                         oscillatorDetuneNode = oscillatorDetuneNode!!,
@@ -106,16 +109,16 @@ fun AudioPlaygroundScreen(
         }
 
         LaunchedEffect(gain) {
-            if (audioContext != null && gainNode != null && isPlaying) {
-                audioContext!!.updateGain(
+            if (gainNode != null && isPlaying) {
+                audioContext.updateGain(
                     newGain = gain,
                     gainNode = gainNode!!
                 )
             }
         }
         LaunchedEffect(frequency) {
-            if (audioContext != null && oscillatorNode != null && oscillatorDetuneNode != null && isPlaying) {
-                audioContext!!.updateFrequency(
+            if (oscillatorNode != null && oscillatorDetuneNode != null && isPlaying) {
+                audioContext.updateFrequency(
                     newFrequency = frequency,
                     oscillatorNode = oscillatorNode!!,
                     oscillatorDetuneNode = oscillatorDetuneNode!!,
@@ -124,8 +127,8 @@ fun AudioPlaygroundScreen(
         }
         LaunchedEffect(detune) {
             print(detune)
-            if (oscillatorDetuneNode != null && audioContext != null && isPlaying) {
-                audioContext!!.updateDetune(
+            if (oscillatorDetuneNode != null && isPlaying) {
+                audioContext.updateDetune(
                     newDetune = detune,
                     oscillatorDetuneNode = oscillatorDetuneNode!!
                 )
@@ -331,19 +334,20 @@ fun AudioPlaygroundScreen(
                 .clickable {
                     isPlaying = !isPlaying
                     if (isPlaying) {
-                        if (audioContext == null) audioContext = createAudioContext()
-                        audioContext!!.playTone(
-                            frequency = frequency,
-                            gain = gain,
-                            detune = detune,
-                            waveForm = waveForm,
-                            setGainNode = { gainNode = it },
-                            setOscillatorNode = { oscillatorNode = it },
-                            setOscillatorDetuneNode = { oscillatorDetuneNode = it },
-                        )
+                        coroutineScope.launch {
+                            audioContext.playTone(
+                                frequency = frequency,
+                                gain = gain,
+                                detune = detune,
+                                waveForm = waveForm,
+                                setGainNode = { gainNode = it },
+                                setOscillatorNode = { oscillatorNode = it },
+                                setOscillatorDetuneNode = { oscillatorDetuneNode = it },
+                            )
+                        }
                     } else {
-                        if (audioContext != null && gainNode != null && oscillatorNode != null && oscillatorDetuneNode != null) {
-                            audioContext!!.stopTone(
+                        if (gainNode != null && oscillatorNode != null && oscillatorDetuneNode != null) {
+                            audioContext.stopTone(
                                 gainNode = gainNode!!,
                                 oscillatorNode = oscillatorNode!!,
                                 oscillatorDetuneNode = oscillatorDetuneNode!!,
