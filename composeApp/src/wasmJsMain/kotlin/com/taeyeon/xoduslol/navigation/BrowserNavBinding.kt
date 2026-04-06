@@ -10,7 +10,7 @@ import kotlinx.browser.window
 import org.w3c.dom.url.URLSearchParams
 
 
-fun parseInitHash(): Screen {
+fun parseHash(): Screen {
     val identifier = window.location.hash.removePrefix("#").substringBefore("?")
     val params = URLSearchParams(window.location.hash.substringAfter("?", "").toJsString())
 

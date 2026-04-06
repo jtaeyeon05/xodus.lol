@@ -10,7 +10,7 @@ plugins {
     kotlin("plugin.serialization") version "2.2.20"
 }
 
-val version = "2.0.7"
+val version = "2.0.8"
 val buildInfoPackage = "com.taeyeon.xoduslol.buildinfo"
 val buildInfoDir = layout.buildDirectory.dir("generated/sources/buildInfo/kotlin")
 

@@ -11,14 +11,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.taeyeon.xoduslol.navigation.appNavGraph
 import com.taeyeon.xoduslol.navigation.bindBrowserHash
-import com.taeyeon.xoduslol.navigation.parseInitHash
+import com.taeyeon.xoduslol.navigation.parseHash
 import com.taeyeon.xoduslol.ui.AppTheme
 
 
 @Composable
 fun App() {
     val navController = rememberNavController()
-    val startScreen = remember { parseInitHash() }
+    val startScreen = remember { parseHash() }
 
     LaunchedEffect(navController) {
         navController.bindBrowserHash()
