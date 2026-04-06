@@ -5,7 +5,13 @@ import kotlinx.browser.window
 import org.w3c.dom.HTMLElement
 
 
-fun Float.floorMultiple(step: Float) = (this / step).toInt() * step
+external fun encodeURIComponent(str: String): String
+
+external fun decodeURIComponent(str: String): String
+
+fun stopLoader() {
+    js("if (window.stopLoader) window.stopLoader();")
+}
 
 fun showCompose() {
     val composeRoot = document.getElementById("compose-root") as HTMLElement
@@ -13,18 +19,11 @@ fun showCompose() {
     composeRoot.style.zIndex = "2"
 }
 
-fun stopLoader() {
-    js("if (window.stopLoader) window.stopLoader();")
+fun replaceHash(newHash: String) {
+    window.history.replaceState(window.history.state, "", newHash)
 }
 
-@JsFun("str => encodeURIComponent(str)")
-external fun encodeURIComponent(str: String): String
-
-@JsFun("str => decodeURIComponent(str)")
-external fun decodeURIComponent(str: String): String
-
-fun replaceHash(newHash: String) =
-    window.history.replaceState(window.history.state, "", newHash)
+fun Float.floorMultiple(step: Float) = (this / step).toInt() * step
 
 fun buildQuery(
     mapQuery: Map<String, String?> = mapOf(),
