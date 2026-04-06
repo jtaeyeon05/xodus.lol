@@ -3,8 +3,6 @@ package com.taeyeon.xoduslol
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
-import com.taeyeon.xoduslol.navigation.bindBrowserHash
-import com.taeyeon.xoduslol.navigation.navigationFromInitHash
 import com.taeyeon.xoduslol.ui.Galmuri11
 import com.taeyeon.xoduslol.util.showCompose
 import com.taeyeon.xoduslol.util.stopLoader
@@ -27,11 +25,6 @@ fun main() {
             }
         }
 
-        App(
-            onNavHostReady = { navController ->
-                navController.navigationFromInitHash()
-                navController.bindBrowserHash()
-            }
-        )
+        App()
     }
 }

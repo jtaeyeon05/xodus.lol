@@ -86,8 +86,7 @@ fun CorridorScreen(
                 onClick = {
                     navController.navigate(
                         route = Screen.Plain(
-                            message = "여기 대신 AudioPlayground에 가보는 것은 어때?\n" +
-                                    "태양을 클릭하면 이전 화면으로 돌아갈 수 있어"
+                            message = "여기는 아무것도 없어",
                         )
                     )
                 },

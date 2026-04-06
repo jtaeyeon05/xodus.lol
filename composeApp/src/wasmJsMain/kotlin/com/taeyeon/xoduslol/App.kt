@@ -5,22 +5,23 @@ import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import com.taeyeon.xoduslol.navigation.Screen
 import com.taeyeon.xoduslol.navigation.appNavGraph
+import com.taeyeon.xoduslol.navigation.bindBrowserHash
+import com.taeyeon.xoduslol.navigation.parseInitHash
 import com.taeyeon.xoduslol.ui.AppTheme
 
 
 @Composable
-fun App(
-    onNavHostReady: suspend (NavController) -> Unit = {}
-) {
+fun App() {
     val navController = rememberNavController()
+    val startScreen = remember { parseInitHash() }
+
     LaunchedEffect(navController) {
-        onNavHostReady(navController)
+        navController.bindBrowserHash()
     }
 
     AppTheme(darkTheme = false) {
@@ -31,7 +32,7 @@ fun App(
         ) {
             NavHost(
                 navController = navController,
-                startDestination = Screen.Home()
+                startDestination = startScreen
             ) {
                 appNavGraph(navController = navController)
             }
