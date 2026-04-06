@@ -9,7 +9,7 @@ plugins {
     kotlin("plugin.serialization") version "2.2.20"
 }
 
-val version = "1.0.1"
+val version = "2.0.0"
 val buildInfoPackage = "com.taeyeon.xoduslol.buildinfo"
 val buildInfoDir = layout.buildDirectory.dir("generated/sources/buildInfo/kotlin")
 
@@ -71,6 +71,7 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+
             implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.0-rc01")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
             implementation("io.github.vinceglb:confettikit:0.6.0")

@@ -6,36 +6,40 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import org.jetbrains.compose.resources.Font
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.preloadFont
 import xoduslol.composeapp.generated.resources.Galmuri11
 import xoduslol.composeapp.generated.resources.Galmuri11_Bold
 import xoduslol.composeapp.generated.resources.Galmuri11_Condensed
 import xoduslol.composeapp.generated.resources.Res
 
 
-val Galmuri11: FontFamily
+@OptIn(ExperimentalResourceApi::class)
+val Galmuri11: FontFamily?
     @Composable
-    get () = FontFamily(
-        Font(
+    get () {
+        val regular by preloadFont(
             resource = Res.font.Galmuri11,
             weight = FontWeight.Normal,
             style = FontStyle.Normal,
-        ),
-        Font(
+        )
+        val bold by preloadFont(
             resource = Res.font.Galmuri11_Bold,
             weight = FontWeight.Bold,
             style = FontStyle.Normal,
-        ),
-        Font(
+        )
+        val light by preloadFont(
             resource = Res.font.Galmuri11_Condensed,
-            weight = FontWeight.Light,
+            weight = FontWeight.Bold,
             style = FontStyle.Normal,
-        ),
-    )
+        )
+        return if (regular != null && bold != null && light != null) FontFamily(regular!!, bold!!, light!!) else null
+    }
 
 val AppTypography: Typography
     @Composable
